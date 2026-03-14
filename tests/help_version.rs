@@ -24,7 +24,7 @@ fn test_version_flag() {
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("token-count"))
-        .stdout(predicate::str::contains("0.1.0"));
+        .stdout(predicate::str::contains(env!("CARGO_PKG_VERSION")));
 }
 
 #[test]
