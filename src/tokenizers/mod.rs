@@ -33,14 +33,13 @@
 //!
 //! # Supported Models
 //!
-//! Currently supports OpenAI models:
-//! - GPT-3.5 Turbo (cl100k_base encoding)
-//! - GPT-4 (cl100k_base encoding)
-//! - GPT-4 Turbo (cl100k_base encoding)
-//! - GPT-4o (o200k_base encoding)
+//! Currently supports:
+//! - OpenAI models: GPT-3.5 Turbo, GPT-4, GPT-4 Turbo, GPT-4o
+//! - Claude models: Claude 4.0-4.6 (Opus, Sonnet, Haiku variants)
 //!
 //! See [`registry::ModelRegistry`] for model configuration and aliases.
 
+pub mod claude;
 pub mod openai;
 pub mod registry;
 
