@@ -19,12 +19,12 @@ This document breaks down the implementation into concrete, ordered tasks follow
 
 ---
 
-## Phase 1: Foundation (Days 1-2)
+## Phase 1: Foundation (Days 1-2) ✅ COMPLETE
 
 ### Task 1.1: Extend Error Types for Claude
 **File**: `src/error.rs`  
 **Depends on**: None  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 1 Foundation**
 
 Add Claude-specific error variants to `TokenError`:
 
@@ -58,7 +58,7 @@ NonInteractiveWithoutYes { model: String },
 ### Task 1.2: Add CLI Flags
 **File**: `src/cli/args.rs`  
 **Depends on**: None  
-**Status**: `[ ]` `[P]`
+**Status**: `[✓]` `[P]` **Committed: Phase 1 Foundation**
 
 Add new flags to `Cli` struct:
 
@@ -98,7 +98,7 @@ fn test_cli_yes_flag() {
 ### Task 1.3: Create TokenCount Enum
 **File**: `src/tokenizers/mod.rs`  
 **Depends on**: None  
-**Status**: `[ ]` `[P]`
+**Status**: `[✓]` `[P]` **Committed: Phase 1 Foundation**
 
 Create enum to distinguish estimated vs. exact counts:
 
@@ -144,7 +144,7 @@ fn test_token_count_value() {
 ### Task 1.4: Create API Module Structure
 **Files**: `src/api/mod.rs`, `src/api/consent.rs`  
 **Depends on**: Task 1.1 (error types)  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 1 Foundation**
 
 Create API utilities module for consent prompt:
 
@@ -178,7 +178,7 @@ impl ConsentPrompt {
 ### Task 1.5: Implement Consent Prompt
 **File**: `src/api/consent.rs`  
 **Depends on**: Task 1.4  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 1 Foundation**
 
 Implement interactive consent prompt with TTY detection:
 
@@ -238,12 +238,12 @@ fn test_consent_prompt_non_interactive() {
 
 ---
 
-## Phase 2: Estimation Algorithm (Day 2)
+## Phase 2: Estimation Algorithm (Day 2) ✅ COMPLETE
 
 ### Task 2.1: Create Claude Module Structure
 **Files**: `src/tokenizers/claude/mod.rs`, `src/tokenizers/claude/estimation.rs`, `src/tokenizers/claude/models.rs`  
 **Depends on**: Task 1.3 (TokenCount enum)  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 2 Estimation**
 
 Create Claude tokenizer module:
 
@@ -276,7 +276,7 @@ impl ClaudeTokenizer {
 ### Task 2.2: Implement ContentType Detection
 **File**: `src/tokenizers/claude/estimation.rs`  
 **Depends on**: Task 2.1  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 2 Estimation**
 
 Implement content type classification:
 
@@ -354,7 +354,7 @@ fn test_detect_mixed() {
 ### Task 2.3: Implement Token Estimation
 **File**: `src/tokenizers/claude/estimation.rs`  
 **Depends on**: Task 2.2  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 2 Estimation**
 
 Implement adaptive token estimation:
 
@@ -406,7 +406,7 @@ fn test_estimate_prose() {
 ### Task 2.4: Add ClaudeTokenizer Trait Implementation (Estimation Only)
 **File**: `src/tokenizers/claude/mod.rs`  
 **Depends on**: Task 2.3  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 2 Estimation**
 
 Implement Tokenizer trait for Claude (estimation mode only):
 
@@ -704,7 +704,7 @@ impl ClaudeTokenizer {
 
 ---
 
-## Phase 4: Integration (Day 4)
+## Phase 4: Integration (Day 4) ✅ COMPLETE
 
 ### Task 4.1: Define Claude Models
 **File**: `src/tokenizers/claude/models.rs`  
@@ -841,7 +841,7 @@ impl ModelRegistry {
 ### Task 4.4: Update Main CLI Flow
 **File**: `src/main.rs`  
 **Depends on**: Task 1.5 (consent), Task 4.3  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 4.5 Consent Integration**
 
 Integrate consent prompt and accurate mode:
 
