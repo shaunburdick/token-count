@@ -19,7 +19,7 @@
 //! let registry = ModelRegistry::global();
 //!
 //! // Get a tokenizer for a specific model
-//! let tokenizer = registry.get_tokenizer("gpt-4").unwrap();
+//! let tokenizer = registry.get_tokenizer("gpt-4", false).unwrap();
 //!
 //! // Count tokens
 //! let count = tokenizer.count_tokens("Hello world").unwrap();

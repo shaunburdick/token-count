@@ -12,7 +12,7 @@ use token_count::count_tokens;
 fn test_large_input_within_limit() {
     // 100KB of varied text (not highly repetitive)
     let input = "word ".repeat(20_000);
-    let result = count_tokens(&input, "gpt-4");
+    let result = count_tokens(&input, "gpt-4", false);
 
     assert!(result.is_ok(), "Should handle 100KB input successfully");
     let token_count = result.unwrap().token_count;
@@ -27,7 +27,7 @@ fn test_500kb_varied_input() {
     let repetitions = 500_000 / base_text.len();
     let input = base_text.repeat(repetitions);
 
-    let result = count_tokens(&input, "gpt-4");
+    let result = count_tokens(&input, "gpt-4", false);
     assert!(result.is_ok(), "Should handle 500KB of varied text without stack overflow");
 }
 
@@ -39,7 +39,7 @@ fn test_medium_varied_input() {
     let repetitions = 50_000 / base_text.len();
     let input = base_text.repeat(repetitions);
 
-    let result = count_tokens(&input, "gpt-4");
+    let result = count_tokens(&input, "gpt-4", false);
     assert!(result.is_ok(), "Should handle 50KB of varied text");
 }
 
@@ -51,7 +51,7 @@ fn test_large_unicode_input() {
     let repetitions = 10_000 / emoji_text.len();
     let input = emoji_text.repeat(repetitions);
 
-    let result = count_tokens(&input, "gpt-4");
+    let result = count_tokens(&input, "gpt-4", false);
     assert!(result.is_ok(), "Should handle large Unicode input");
 }
 
@@ -65,7 +65,7 @@ fn test_near_max_input_size() {
     let base_text = "Lorem ipsum dolor sit amet. ";
     let repetitions = (50 * 1024 * 1024) / base_text.len();
     let input = base_text.repeat(repetitions);
-    let result = count_tokens(&input, "gpt-4");
+    let result = count_tokens(&input, "gpt-4", false);
 
     assert!(result.is_ok(), "Should handle 50MB input (half of 100MB limit)");
 }
@@ -76,7 +76,7 @@ fn test_multiple_medium_inputs() {
     // Process multiple 100KB inputs sequentially to verify no memory leaks
     for _ in 0..5 {
         let input = "Test input. ".repeat(10_000);
-        let result = count_tokens(&input, "gpt-4");
+        let result = count_tokens(&input, "gpt-4", false);
         assert!(result.is_ok(), "Should handle multiple sequential large inputs");
     }
 }
@@ -89,7 +89,7 @@ fn test_large_input_across_models() {
     let models = vec!["gpt-3.5-turbo", "gpt-4", "gpt-4o"];
 
     for model in models {
-        let result = count_tokens(&input, model);
+        let result = count_tokens(&input, model, false);
         assert!(result.is_ok(), "Model {} should handle 100KB input", model);
     }
 }

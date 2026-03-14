@@ -25,7 +25,7 @@ fn run(cli: Cli) -> Result<(), TokenError> {
     let input = read_stdin()?;
 
     // Count tokens using the specified model
-    let result = count_tokens(&input, &cli.model)?;
+    let result = count_tokens(&input, &cli.model, cli.accurate)?;
 
     // Select the appropriate formatter based on verbosity level
     let formatter = select_formatter(cli.verbose);
