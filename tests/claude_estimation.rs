@@ -18,7 +18,7 @@ fn test_claude_estimation_simple() {
     let tokens: usize = stdout.trim().parse().unwrap();
 
     // "Hello, world!" should be roughly 3-4 tokens
-    assert!(tokens >= 2 && tokens <= 6, "Expected 2-6 tokens, got {}", tokens);
+    assert!((2..=6).contains(&tokens), "Expected 2-6 tokens, got {}", tokens);
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn test_claude_estimation_prose() {
     let tokens: usize = stdout.trim().parse().unwrap();
 
     // 195 chars ÷ 4.5 ≈ 43 tokens
-    assert!(tokens >= 38 && tokens <= 48, "Expected ~43 tokens for prose, got {}", tokens);
+    assert!((38..=48).contains(&tokens), "Expected ~43 tokens for prose, got {}", tokens);
 }
 
 #[test]
@@ -82,7 +82,7 @@ fn test_claude_estimation_code() {
 
     // JSON has lots of punctuation ({}:,"), should be detected as code
     // Using 3.0 chars/token ratio
-    assert!(tokens >= 25 && tokens <= 45, "Expected ~35 tokens for JSON code, got {}", tokens);
+    assert!((25..=45).contains(&tokens), "Expected ~35 tokens for JSON code, got {}", tokens);
 }
 
 #[test]
