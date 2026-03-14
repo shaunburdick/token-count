@@ -1,0 +1,3 @@
+Hello world!
+This is a simple ASCII text file for testing.
+It contains multiple lines.

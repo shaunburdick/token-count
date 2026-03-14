@@ -40,8 +40,9 @@ Breaking changes require major version bump. New models/features are minor versi
 ## Technical Decisions
 
 ### Language & Toolchain
-- **Language**: Rust (stable channel, MSRV: 1.75.0+)
+- **Language**: Rust (stable channel, MSRV: 1.85.0+)
 - **Rationale**: Memory safety, cross-compilation, single-binary output, excellent CLI ecosystem
+- **MSRV Update**: Changed from 1.75.0 to 1.85.0 to support clap 4.6.0+ (see Amendment 1.2.0)
 
 ### Core Dependencies
 | Crate | Version | Purpose | Justification |
@@ -128,9 +129,8 @@ Sample Decoded: ["Hello", " world", ",", " how", " are", ...]
 ```
 
 ### Binary Size Budget
-- **Target**: <20MB uncompressed
-- **Maximum**: 30MB uncompressed
-- **Rationale**: Balances embedded tokenizers with reasonable download size
+- **Target**: <50MB uncompressed (best effort)
+- **Rationale**: Embedded tokenizers (~15-20MB per encoding) ensure accuracy and offline capability. Size is secondary to correctness (see Amendment 1.3.0).
 
 ### Error Handling
 | Scenario | Behavior | Exit Code |
@@ -154,7 +154,7 @@ Sample Decoded: ["Hello", " world", ",", " how", " are", ...]
 - **Small input (<10KB)**: <10ms latency
 - **Medium input (1MB)**: <100ms latency
 - **Large input (100MB)**: Streaming with <500MB memory footprint
-- **Binary size**: <30MB uncompressed
+- **Binary size**: Best effort to stay <50MB (accuracy takes precedence, see Amendment 1.3.0)
 
 ### Code Quality
 - **Linting**: `cargo clippy` with zero warnings
@@ -255,7 +255,7 @@ Every PR must:
 - [ ] Include tests
 - [ ] Update CHANGELOG if user-facing
 
-**Version**: 1.1.0 | **Ratified**: 2026-03-13 | **Last Amended**: 2026-03-13
+**Version**: 1.3.0 | **Ratified**: 2026-03-13 | **Last Amended**: 2026-03-13
 
 ---
 
@@ -280,3 +280,78 @@ Every PR must:
 - No implementation impact (caught during specification phase)
 
 **Approved**: 2026-03-13 (User decision: Option A)
+
+---
+
+### Amendment 1.2.0 (2026-03-13): MSRV Update to 1.85.0+
+**Type**: Technical Decision Update (Non-Breaking for MVP, since no code exists yet)
+
+**Change**: Updated Minimum Supported Rust Version (MSRV) from 1.75.0 to 1.85.0
+
+**Rationale**:
+- clap 4.6.0 (critical dependency) requires Rust 1.85+
+- clap is industry standard for Rust CLIs with excellent UX (used by cargo, ripgrep, fd, bat)
+- Derive API provides type-safe, declarative argument parsing with automatic help generation
+- Excellent error messages with suggestions align with Constitution Principle V (Fail Fast with Clear Errors)
+- Alternative clap 4.5.x (Rust 1.74+) lacks latest features and improvements
+- Rust 1.85 released December 2024, widely available on major platforms
+
+**Impact**:
+- CI/CD workflows must use Rust 1.85+ toolchain
+- Users building from source need Rust 1.85+
+- Pre-built binaries unaffected (no runtime requirement)
+- GitHub Actions rust-toolchain updated to 1.85
+- README installation docs updated with MSRV
+
+**Alternatives Considered**:
+1. Use clap 4.5.x (Rust 1.74+) - Rejected: Missing latest improvements, still higher than original 1.75 MSRV
+2. Use argh or pico-args (lower MSRV) - Rejected: Inferior UX, less ecosystem support
+3. Keep 1.75 MSRV, find alternative to clap - Rejected: No comparable alternative exists
+
+**Trade-offs**:
+- ✅ Better user experience (excellent error messages, help text)
+- ✅ Industry standard library (proven, well-maintained)
+- ✅ Type safety and compile-time checks
+- ❌ Slightly higher barrier for building from source (Rust 1.85 vs 1.75)
+- ✅ No impact on end users (pre-built binaries work anywhere)
+
+**Approved**: 2026-03-13 (Architect recommendation, user approved)
+
+---
+
+### Amendment 1.3.0 (2026-03-13): Binary Size Constraint Relaxation
+**Type**: Quality Standard Update (Non-Breaking)
+
+**Change**: Removed hard 30MB binary size limit from quality standards
+
+**Original Constraint**:
+- Target: <20MB uncompressed
+- Maximum: 30MB uncompressed
+
+**Updated Constraint**:
+- Target: <50MB uncompressed (best effort)
+- Maximum: No hard limit (embedded tokenizers take priority)
+
+**Rationale**:
+- tiktoken-rs embeds BPE vocabulary files (~15-20MB per encoding)
+- Supporting multiple models (GPT-2, GPT-3.5, GPT-4, GPT-4o) requires multiple vocabularies
+- Accuracy principle (II) takes precedence over size optimization
+- Modern systems can easily handle 50-100MB binaries
+- Alternative (separate vocab downloads) violates Zero Dependencies principle (III)
+- Users prioritize accuracy and offline capability over download size
+
+**Impact**:
+- Binary size monitoring remains in place (track growth)
+- Release optimizations still applied (LTO, strip, opt-level=z)
+- Expected MVP size: 40-60MB (4 encodings embedded)
+- Plan.md and quickstart.md updated to remove size checks
+- Risk mitigation for binary size downgraded from Medium to Low priority
+
+**Trade-offs**:
+- ✅ Full accuracy for all OpenAI models (no compromises)
+- ✅ True offline capability (no network dependencies)
+- ✅ Faster startup (no vocabulary loading)
+- ❌ Larger download size (acceptable for modern bandwidth)
+- ✅ Simpler architecture (no dynamic loading complexity)
+
+**Approved**: 2026-03-13 (User decision)

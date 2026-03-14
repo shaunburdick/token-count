@@ -1,0 +1,66 @@
+{
+  "cl100k_base": [
+    {
+      "input": "Hello world",
+      "expected_tokens": 2
+    },
+    {
+      "input": "The quick brown fox jumps over the lazy dog",
+      "expected_tokens": 9
+    },
+    {
+      "input": "",
+      "expected_tokens": 0
+    },
+    {
+      "input": " ",
+      "expected_tokens": 1
+    },
+    {
+      "input": "\n",
+      "expected_tokens": 1
+    },
+    {
+      "input": "a",
+      "expected_tokens": 1
+    },
+    {
+      "input": "Hello 世界 🌍",
+      "expected_tokens": 8
+    },
+    {
+      "input": "Emoji test: 🎉🎊🎈",
+      "expected_tokens": 12
+    },
+    {
+      "input": "Japanese: こんにちは世界",
+      "expected_tokens": 7
+    },
+    {
+      "input": "Mixed: Hello 世界 test 123",
+      "expected_tokens": 10
+    }
+  ],
+  "o200k_base": [
+    {
+      "input": "Hello world",
+      "expected_tokens": 2
+    },
+    {
+      "input": "The quick brown fox jumps over the lazy dog",
+      "expected_tokens": 9
+    },
+    {
+      "input": "",
+      "expected_tokens": 0
+    },
+    {
+      "input": " ",
+      "expected_tokens": 1
+    },
+    {
+      "input": "Hello 世界 🌍",
+      "expected_tokens": 4
+    }
+  ]
+}
