@@ -969,12 +969,12 @@ pub fn format_verbose(count: TokenCount, model_info: ModelInfo) -> String {
 
 ---
 
-## Phase 5: Testing & Validation (Day 5)
+## Phase 5: Testing & Validation (Day 5) ✅ COMPLETE
 
 ### Task 5.1: Integration Test - Estimation Mode
-**File**: `tests/integration/claude_estimation.rs`  
+**File**: `tests/claude_estimation.rs`  
 **Depends on**: Task 4.4  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 5 Testing**
 
 Test CLI estimation mode:
 
@@ -1004,9 +1004,9 @@ fn test_claude_empty_input() {
 ---
 
 ### Task 5.2: Integration Test - API Mode
-**File**: `tests/integration/claude_api.rs`  
+**File**: `tests/claude_api.rs`  
 **Depends on**: Task 4.4  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 5 Testing**
 
 Test API mode with mocked responses:
 
@@ -1208,7 +1208,7 @@ EOF
 ### Task 5.7: Update Documentation
 **File**: `README.md`, `CHANGELOG.md`  
 **Depends on**: All previous tasks  
-**Status**: `[ ]`
+**Status**: `[✓]` **Committed: Phase 5 Testing**
 
 Update README with Claude examples:
 
