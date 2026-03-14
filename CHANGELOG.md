@@ -5,6 +5,165 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-03-14
+
+### 🚀 Claude Model Support
+
+The second release adds support for Anthropic Claude models with a hybrid tokenization approach: fast offline estimation by default, with optional exact API counting.
+
+### Added
+
+#### Claude Tokenization
+- **3 Claude models**: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5
+- **Adaptive token estimation algorithm** with content-type detection:
+  - **Code detection**: Identifies code by punctuation density (`{}[]();:,<>`) and keywords → 3.0 chars/token
+  - **Prose detection**: Natural language text → 4.5 chars/token  
+  - **Mixed content**: Markdown with code blocks → 3.75 chars/token
+  - **Target accuracy**: ±10% for typical inputs
+- **Optional accurate mode** via Anthropic API (`--accurate` flag)
+  - Requires `ANTHROPIC_API_KEY` environment variable
+  - Interactive consent prompt before API calls
+  - Graceful fallback to estimation on API errors
+- **Model aliases**: 
+  - `claude` → `claude-sonnet-4-6` (default)
+  - Short names: `opus`, `sonnet`, `haiku`
+  - Version variants: `opus-4-6`, `opus-4.6`
+  - Provider prefix: `anthropic/claude-sonnet-4-6`
+
+#### CLI Enhancements
+- `--accurate` flag - Use API for exact token counts (Claude models only)
+- `-y, --yes` flag - Skip API consent prompt for automation/scripting
+- **Interactive consent prompt** for API calls:
+  - Shows provider, API endpoint, and data usage notice
+  - TTY detection for interactive vs non-interactive mode
+  - Clear error messages with examples when consent required
+- **Non-interactive mode handling**:
+  - Detects piped input (stdin not a TTY)
+  - Requires `-y` flag or returns helpful error
+  - Example: `cat file.txt | token-count --model claude --accurate -y`
+
+#### API Integration
+- **Anthropic API client** with robust error handling:
+  - Exponential backoff retry logic (3 attempts: 2s, 4s, 8s delays)
+  - 30-second timeout per request
+  - Proper error mapping (rate limits, server errors, invalid API keys)
+- **Async runtime** (tokio) for API calls while maintaining sync CLI interface
+- **Security features**:
+  - API keys never logged or exposed in errors
+  - HTTPS-only with certificate verification  
+  - No caching of API responses (short-lived CLI sessions)
+
+#### Testing
+- **21 new integration tests** for Claude estimation and API modes
+- **9 API-specific tests** (error handling, consent, fallback behavior)
+- **12 estimation tests** (content types, models, aliases, edge cases)
+- **Total: 152 tests** (increased from 131)
+- All tests pass sequentially (some env var conflicts in parallel execution)
+
+### Changed
+
+- **Test count badge**: Updated from 100 to 152 passing tests
+- **OpenAI accurate mode**: `--accurate` flag now only affects Claude models (OpenAI always uses offline tiktoken)
+- **Model registry**: Extended to support multiple tokenization strategies (offline vs API-based)
+- **Error messages**: Enhanced with Claude-specific errors (missing API key, invalid key, consent required)
+- **Dependencies**: Added reqwest 0.12, tokio 1.0, serde 1.0.149, serde_json 1.0.149
+
+### Technical Details
+
+#### New Modules
+- `src/tokenizers/claude/` - Claude tokenizer implementation
+  - `mod.rs` - Main tokenizer with hybrid API/estimation logic
+  - `estimation.rs` - Adaptive content-type detection and estimation
+  - `api_client.rs` - Anthropic API client with retry logic
+  - `models.rs` - Model definitions and aliases
+- `src/api/` - API utilities
+  - `consent.rs` - Interactive consent prompt with TTY detection
+
+#### Architecture
+- **Hybrid tokenization strategy**: Estimation by default, API on demand
+- **Consent pattern**: Reusable for future API providers (OpenAI, Gemini)
+- **Content-type detection**: Code vs prose vs mixed content analysis
+- **Graceful degradation**: API failures fall back to estimation with warning
+
+#### Performance
+- **Estimation speed**: ~5-10µs for small inputs (similar to tiktoken)
+- **API mode**: ~200-500ms for API round-trip (network dependent)
+- **Fallback**: Automatic estimation if API unavailable (no user intervention)
+
+### Examples
+
+```bash
+# Offline estimation (default, no API key needed)
+echo "Hello, Claude!" | token-count --model claude
+9
+
+# Model aliases work
+token-count --model sonnet < document.txt
+412
+
+# Verbose output with context
+cat prompt.txt | token-count --model claude-opus-4-6 -v
+Model: claude-opus-4-6 (anthropic-claude)
+Tokens: 142
+Context window: 1000000 tokens (0.0142% used)
+
+# Accurate mode with API (requires ANTHROPIC_API_KEY and consent)
+export ANTHROPIC_API_KEY="sk-ant-..."
+echo "test" | token-count --model claude --accurate
+# Prompts: "This will send your input to Anthropic's API... Proceed? (y/N)"
+# y
+# 1
+
+# Skip consent for automation
+cat file.txt | token-count --model claude --accurate -y
+842
+
+# Error handling - missing API key
+token-count --model claude --accurate -y < input.txt
+Error: Accurate mode requires ANTHROPIC_API_KEY environment variable.
+
+Get your API key from: https://console.anthropic.com/
+Then set: export ANTHROPIC_API_KEY="sk-ant-..."
+
+For offline estimation (no API key needed), omit --accurate flag:
+  token-count --model claude-sonnet-4-6
+
+# Error handling - non-interactive without -y
+cat file.txt | token-count --model claude --accurate
+Error: API call requires consent. Running in non-interactive mode (stdin not a TTY).
+
+Options:
+  1. Add -y/--yes flag to skip prompt:
+     cat file.txt | token-count --model claude --accurate -y
+  
+  2. Use estimation mode (no API call):
+     cat file.txt | token-count --model claude
+```
+
+### Migration Notes
+
+**For users upgrading from v0.1.0:**
+- No breaking changes - all existing commands work identically
+- New `--accurate` flag is optional and only affects Claude models
+- OpenAI models continue using offline tiktoken (no API calls)
+
+**For library users:**
+- `count_tokens()` signature changed: added `accurate: bool` parameter
+- Update calls: `count_tokens(text, model, false)` for existing behavior
+
+### Known Limitations
+
+1. **Claude estimation accuracy**: ±10% for typical inputs; may vary for unusual content
+2. **API rate limits**: Anthropic rate limits apply when using `--accurate` mode
+3. **Test environment variables**: Some tests conflict in parallel execution due to shared env vars (all pass sequentially)
+4. **No Claude token caching**: API responses not cached (short CLI session doesn't benefit)
+
+### Contributors
+
+- Shaun Burdick ([@shaunburdick](https://github.com/shaunburdick)) - Claude implementation
+
+---
+
 ## [0.1.0] - 2026-03-14
 
 ### 🎉 Initial Release
@@ -164,13 +323,12 @@ This is the initial release. No migration required.
 
 ## [Unreleased]
 
-### Planned for v0.2.0
-- Anthropic Claude model support
+### Planned for v0.3.0
 - Google Gemini model support
 - Meta Llama model support
 - Mistral model support
 
-### Planned for v0.3.0
+### Planned for v0.4.0
 - Stable library API
 - Token ID output in debug mode
 - Batch processing mode
@@ -178,4 +336,5 @@ This is the initial release. No migration required.
 
 ---
 
+[0.2.0]: https://github.com/shaunburdick/token-count/releases/tag/v0.2.0
 [0.1.0]: https://github.com/shaunburdick/token-count/releases/tag/v0.1.0
