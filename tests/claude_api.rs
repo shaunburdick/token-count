@@ -2,18 +2,28 @@
 //!
 //! Tests the --accurate flag behavior including error handling, consent requirements,
 //! and fallback to estimation when API is unavailable.
+//!
+//! Note: These tests use a mutex to serialize access to environment variables,
+//! preventing race conditions when tests run in parallel.
 
 use assert_cmd::Command;
 use predicates::prelude::*;
-use std::env;
+use std::sync::Mutex;
+
+// Global mutex to serialize tests that manipulate environment variables
+static ENV_MUTEX: Mutex<()> = Mutex::new(());
 
 #[test]
 fn test_api_mode_with_invalid_key() {
-    // Set an obviously invalid API key
-    env::set_var("ANTHROPIC_API_KEY", "invalid-key-123");
+    let _lock = ENV_MUTEX.lock().unwrap();
 
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.arg("--model").arg("claude").arg("--accurate").arg("-y").write_stdin("test");
+    cmd.env("ANTHROPIC_API_KEY", "invalid-key-123")
+        .arg("--model")
+        .arg("claude")
+        .arg("--accurate")
+        .arg("-y")
+        .write_stdin("test");
 
     // With invalid key, API call will fail and fall back to estimation
     // Should succeed with estimation and show warning in stderr
@@ -30,17 +40,19 @@ fn test_api_mode_with_invalid_key() {
         "Expected fallback warning, got: {}",
         stderr
     );
-
-    // Clean up
-    env::remove_var("ANTHROPIC_API_KEY");
 }
 
 #[test]
 fn test_api_mode_missing_key_verbose_error() {
-    env::remove_var("ANTHROPIC_API_KEY");
+    let _lock = ENV_MUTEX.lock().unwrap();
 
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.arg("--model").arg("claude").arg("--accurate").arg("-y").write_stdin("test");
+    cmd.env_remove("ANTHROPIC_API_KEY")
+        .arg("--model")
+        .arg("claude")
+        .arg("--accurate")
+        .arg("-y")
+        .write_stdin("test");
 
     // Error should include setup instructions
     cmd.assert()
@@ -51,10 +63,14 @@ fn test_api_mode_missing_key_verbose_error() {
 
 #[test]
 fn test_api_mode_non_interactive_without_yes() {
-    env::remove_var("ANTHROPIC_API_KEY");
+    let _lock = ENV_MUTEX.lock().unwrap();
 
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.arg("--model").arg("claude").arg("--accurate").write_stdin("test");
+    cmd.env_remove("ANTHROPIC_API_KEY")
+        .arg("--model")
+        .arg("claude")
+        .arg("--accurate")
+        .write_stdin("test");
 
     // Should fail in non-interactive mode without -y flag
     cmd.assert()
@@ -75,18 +91,20 @@ fn test_api_mode_only_applies_to_claude() {
 
 #[test]
 fn test_accurate_flag_without_yes_non_interactive() {
-    env::set_var("ANTHROPIC_API_KEY", "sk-test-key");
+    let _lock = ENV_MUTEX.lock().unwrap();
 
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.arg("--model").arg("claude").arg("--accurate").write_stdin("test");
+    cmd.env("ANTHROPIC_API_KEY", "sk-test-key")
+        .arg("--model")
+        .arg("claude")
+        .arg("--accurate")
+        .write_stdin("test");
 
     // Non-interactive without -y should fail with clear message
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("consent"))
         .stderr(predicate::str::contains("non-interactive"));
-
-    env::remove_var("ANTHROPIC_API_KEY");
 }
 
 #[test]
@@ -101,11 +119,15 @@ fn test_yes_flag_requires_accurate() {
 
 #[test]
 fn test_estimation_fallback_message() {
-    // When API is unavailable, should fall back to estimation with warning
-    env::set_var("ANTHROPIC_API_KEY", "sk-invalid");
+    let _lock = ENV_MUTEX.lock().unwrap();
 
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.arg("--model").arg("claude").arg("--accurate").arg("-y").write_stdin("test");
+    cmd.env("ANTHROPIC_API_KEY", "sk-invalid")
+        .arg("--model")
+        .arg("claude")
+        .arg("--accurate")
+        .arg("-y")
+        .write_stdin("test");
 
     let output = cmd.output().unwrap();
 
@@ -122,8 +144,6 @@ fn test_estimation_fallback_message() {
             stderr
         );
     }
-
-    env::remove_var("ANTHROPIC_API_KEY");
 }
 
 #[test]
