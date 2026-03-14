@@ -23,7 +23,7 @@ fn test_cl100k_base_fixtures() {
     let cl100k_cases = fixtures.get("cl100k_base").expect("cl100k_base fixtures not found");
 
     // Test with gpt-4 (uses cl100k_base)
-    let tokenizer = registry.get_tokenizer("gpt-4").unwrap();
+    let tokenizer = registry.get_tokenizer("gpt-4", false).unwrap();
 
     for (i, test_case) in cl100k_cases.iter().enumerate() {
         let count = tokenizer
@@ -46,7 +46,7 @@ fn test_o200k_base_fixtures() {
     let o200k_cases = fixtures.get("o200k_base").expect("o200k_base fixtures not found");
 
     // Test with gpt-4o (uses o200k_base)
-    let tokenizer = registry.get_tokenizer("gpt-4o").unwrap();
+    let tokenizer = registry.get_tokenizer("gpt-4o", false).unwrap();
 
     for (i, test_case) in o200k_cases.iter().enumerate() {
         let count = tokenizer
@@ -64,7 +64,7 @@ fn test_o200k_base_fixtures() {
 #[test]
 fn test_unicode_handling() {
     let registry = ModelRegistry::global();
-    let tokenizer = registry.get_tokenizer("gpt-4").unwrap();
+    let tokenizer = registry.get_tokenizer("gpt-4", false).unwrap();
 
     // From fixtures: "Hello 世界 🌍" should be 8 tokens
     let count = tokenizer.count_tokens("Hello 世界 🌍").unwrap();
@@ -74,7 +74,7 @@ fn test_unicode_handling() {
 #[test]
 fn test_empty_string() {
     let registry = ModelRegistry::global();
-    let tokenizer = registry.get_tokenizer("gpt-4").unwrap();
+    let tokenizer = registry.get_tokenizer("gpt-4", false).unwrap();
 
     let count = tokenizer.count_tokens("").unwrap();
     assert_eq!(count, 0, "Empty string should have 0 tokens");
@@ -87,7 +87,7 @@ fn test_all_models() {
 
     for model in &models {
         let tokenizer = registry
-            .get_tokenizer(model)
+            .get_tokenizer(model, false)
             .unwrap_or_else(|e| panic!("Failed to get tokenizer for {}: {}", model, e));
 
         let count = tokenizer

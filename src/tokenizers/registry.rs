@@ -1,7 +1,11 @@
 //! Model registry for managing supported models
 
 use crate::error::TokenError;
-use crate::tokenizers::{openai::OpenAITokenizer, ModelInfo, Tokenizer};
+use crate::tokenizers::{
+    claude::{claude_models, ClaudeTokenizer},
+    openai::OpenAITokenizer,
+    ModelInfo, Tokenizer,
+};
 use anyhow::Result;
 use std::collections::HashMap;
 use std::sync::OnceLock;
@@ -72,6 +76,11 @@ impl ModelRegistry {
             aliases: vec!["gpt4o".to_string(), "openai/gpt-4o".to_string()],
         });
 
+        // Claude models
+        for model in claude_models() {
+            registry.add_model(model);
+        }
+
         registry
     }
 
@@ -116,20 +125,40 @@ impl ModelRegistry {
     }
 
     /// Create a tokenizer for the given model
-    pub fn get_tokenizer(&self, name: &str) -> Result<Box<dyn Tokenizer>, TokenError> {
+    ///
+    /// # Arguments
+    /// * `name` - Model name (canonical or alias)
+    /// * `use_accurate` - Whether to use accurate mode for models that support it (Claude API)
+    ///
+    /// # Returns
+    /// * `Ok(Box<dyn Tokenizer>)` - Tokenizer instance for the model
+    /// * `Err(TokenError)` - Model not found or tokenizer creation failed
+    pub fn get_tokenizer(
+        &self,
+        name: &str,
+        use_accurate: bool,
+    ) -> Result<Box<dyn Tokenizer>, TokenError> {
         let config = self.get_model(name)?;
 
-        let model_info = ModelInfo {
-            name: config.name.clone(),
-            encoding: config.encoding.clone(),
-            context_window: config.context_window,
-            description: config.description.clone(),
-        };
+        // Detect tokenizer type based on encoding
+        if config.encoding == "anthropic-claude" {
+            // Claude tokenizer (estimation or API)
+            let tokenizer = ClaudeTokenizer::new(config.clone(), use_accurate)?;
+            Ok(Box::new(tokenizer))
+        } else {
+            // OpenAI tokenizer (tiktoken)
+            let model_info = ModelInfo {
+                name: config.name.clone(),
+                encoding: config.encoding.clone(),
+                context_window: config.context_window,
+                description: config.description.clone(),
+            };
 
-        let tokenizer = OpenAITokenizer::new(&config.encoding, model_info)
-            .map_err(|e| TokenError::Tokenization(e.to_string()))?;
+            let tokenizer = OpenAITokenizer::new(&config.encoding, model_info)
+                .map_err(|e| TokenError::Tokenization(e.to_string()))?;
 
-        Ok(Box::new(tokenizer))
+            Ok(Box::new(tokenizer))
+        }
     }
 
     /// List all supported models
@@ -203,19 +232,41 @@ mod tests {
     fn test_list_models() {
         let registry = ModelRegistry::new();
         let models = registry.list_models();
-        assert_eq!(models.len(), 4);
+        assert_eq!(models.len(), 7); // 4 OpenAI + 3 Claude
         assert!(models.iter().any(|m| m.name == "gpt-3.5-turbo"));
         assert!(models.iter().any(|m| m.name == "gpt-4"));
         assert!(models.iter().any(|m| m.name == "gpt-4-turbo"));
         assert!(models.iter().any(|m| m.name == "gpt-4o"));
+        assert!(models.iter().any(|m| m.name == "claude-opus-4-6"));
+        assert!(models.iter().any(|m| m.name == "claude-sonnet-4-6"));
+        assert!(models.iter().any(|m| m.name == "claude-haiku-4-5"));
     }
 
     #[test]
     fn test_get_tokenizer() {
         let registry = ModelRegistry::new();
-        let tokenizer = registry.get_tokenizer("gpt-4").unwrap();
+        let tokenizer = registry.get_tokenizer("gpt-4", false).unwrap();
         let count = tokenizer.count_tokens("Hello world").unwrap();
         assert_eq!(count, 2);
+    }
+
+    #[test]
+    fn test_get_claude_tokenizer() {
+        let registry = ModelRegistry::new();
+        let tokenizer = registry.get_tokenizer("claude-sonnet-4-6", false).unwrap();
+        let count = tokenizer.count_tokens("Hello world").unwrap();
+        // Estimation mode: "Hello world" = 11 chars
+        // Prose detection: ratio < 5% → 4.5 chars/token → 11/4.5 = 2.44 → ceil = 3 tokens
+        assert_eq!(count, 3);
+    }
+
+    #[test]
+    fn test_claude_alias_resolution() {
+        let registry = ModelRegistry::new();
+        assert_eq!(registry.resolve_model_name("claude").unwrap(), "claude-sonnet-4-6");
+        assert_eq!(registry.resolve_model_name("sonnet").unwrap(), "claude-sonnet-4-6");
+        assert_eq!(registry.resolve_model_name("opus").unwrap(), "claude-opus-4-6");
+        assert_eq!(registry.resolve_model_name("haiku").unwrap(), "claude-haiku-4-5");
     }
 
     #[test]

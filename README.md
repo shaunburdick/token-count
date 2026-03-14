@@ -4,35 +4,39 @@
 
 [![Rust](https://img.shields.io/badge/rust-1.85%2B-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-100%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-152%20passing-brightgreen.svg)](tests/)
 
 ## Overview
 
-`token-count` is a POSIX-style command-line tool that counts tokens for various LLM models using exact tokenization. Pipe any text in, get accurate token counts out—no browser, no API calls, just a fast offline binary.
+`token-count` is a POSIX-style command-line tool that counts tokens for various LLM models. It supports exact tokenization for OpenAI models (offline) and adaptive estimation for Claude models (with optional API mode for exact counts). Pipe any text in, get token counts out—fast, offline, and accurate.
 
 ```bash
-# Quick token count
+# OpenAI models (exact, offline)
 echo "Hello world" | token-count --model gpt-4
 2
+
+# Claude models (estimation, offline)
+echo "Hello, Claude!" | token-count --model claude
+9
 
 # From file
 token-count --model gpt-4 < document.txt
 1842
 
 # With context info
-cat prompt.txt | token-count --model gpt-4 -v
-Model: gpt-4 (cl100k_base)
+cat prompt.txt | token-count --model claude-sonnet-4-6 -v
+Model: claude-sonnet-4-6 (anthropic-claude)
 Tokens: 142
-Context window: 128000 tokens (0.1109% used)
+Context window: 1000000 tokens (0.0142% used)
 ```
 
 ## Features
 
-✅ **Accurate** - Exact tokenization using OpenAI's tiktoken library  
+✅ **Accurate** - Exact tokenization for OpenAI, adaptive estimation for Claude  
 ✅ **Fast** - ~2.7µs for small inputs (3,700x faster than 10ms target)  
 ✅ **Efficient** - 57MB memory for 12MB files (8.8x under 500MB limit)  
 ✅ **Compact** - 9.2MB binary with all tokenizers embedded  
-✅ **Offline** - Zero runtime dependencies, all tokenizers built-in  
+✅ **Offline** - Zero runtime dependencies for OpenAI; optional API for Claude  
 ✅ **Simple** - POSIX-style interface, works like `wc` or `grep`
 
 ## Installation
@@ -157,7 +161,7 @@ token-count --version
 
 ## Supported Models
 
-### OpenAI Models (Exact Tokenization)
+### OpenAI Models (Exact Tokenization - Offline)
 
 | Model | Encoding | Context Window | Aliases |
 |-------|----------|----------------|---------|
@@ -166,9 +170,45 @@ token-count --version
 | gpt-4-turbo | cl100k_base | 128,000 | gpt4-turbo, gpt-4turbo |
 | gpt-4o | o200k_base | 128,000 | gpt4o |
 
+### Anthropic Claude Models (Adaptive Estimation - Offline by Default)
+
+| Model | Context Window | Aliases | Estimation Mode |
+|-------|----------------|---------|-----------------|
+| claude-opus-4-6 | 1,000,000 | opus, opus-4-6, opus-4.6 | ±10% accuracy |
+| claude-sonnet-4-6 | 1,000,000 | claude, sonnet, sonnet-4-6, sonnet-4.6 | ±10% accuracy |
+| claude-haiku-4-5 | 200,000 | haiku, haiku-4-5, haiku-4.5 | ±10% accuracy |
+
+**Claude Tokenization Modes:**
+
+**Offline Estimation (Default)** - No API key needed:
+```bash
+# Fast offline estimation using adaptive content-type detection
+echo "Hello, Claude!" | token-count --model claude
+9
+```
+
+**Exact API Mode (Optional)** - Requires `ANTHROPIC_API_KEY`:
+```bash
+# Exact count via Anthropic API (requires consent)
+export ANTHROPIC_API_KEY="sk-ant-..."
+echo "Hello, Claude!" | token-count --model claude --accurate
+# Prompts: "This will send your input to Anthropic's API... Proceed? (y/N)"
+# Output: 8
+
+# Skip prompt for automation
+cat file.txt | token-count --model claude --accurate -y
+```
+
+**How Claude Estimation Works:**
+- Detects content type (code vs. prose) using punctuation and keyword analysis
+- **Code**: 3.0 chars/token (lots of `{}[]();` and keywords)
+- **Prose**: 4.5 chars/token (natural language)
+- **Mixed**: 3.75 chars/token (markdown + code blocks)
+- Target: ±10% accuracy for typical inputs
+
 All models support:
 - Case-insensitive names (e.g., `GPT-4`, `gpt-4`, `Gpt-4`)
-- Provider prefix (e.g., `openai/gpt-4`)
+- Provider prefix (e.g., `openai/gpt-4`, `anthropic/claude-sonnet-4-6`)
 
 ## Error Handling
 
@@ -271,8 +311,16 @@ token-count/
 │   │   ├── input.rs        # Stdin reading
 │   │   └── mod.rs
 │   ├── tokenizers/         # Tokenization engine
-│   │   ├── openai.rs       # OpenAI tokenizer
+│   │   ├── openai.rs       # OpenAI tokenizer (tiktoken)
+│   │   ├── claude/         # Claude tokenizer
+│   │   │   ├── mod.rs      # Main tokenizer
+│   │   │   ├── estimation.rs  # Adaptive estimation
+│   │   │   ├── api_client.rs  # Anthropic API
+│   │   │   └── models.rs   # Model definitions
 │   │   ├── registry.rs     # Model registry
+│   │   └── mod.rs
+│   ├── api/                # API utilities
+│   │   ├── consent.rs      # Interactive consent prompt
 │   │   └── mod.rs
 │   ├── output/             # Output formatters
 │   │   ├── simple.rs       # Simple formatter
@@ -287,6 +335,8 @@ token-count/
 │   ├── performance.rs
 │   ├── error_handling.rs
 │   ├── end_to_end.rs
+│   ├── claude_estimation.rs  # Claude estimation tests
+│   ├── claude_api.rs          # Claude API tests
 │   └── ...
 ├── benches/                # Performance benchmarks
 │   └── tokenization.rs
@@ -367,10 +417,14 @@ From our [Constitution](.specify/memory/constitution.md):
 
 - **Language**: Rust 1.85.0+ (stable)
 - **CLI Parsing**: clap 4.6.0+ (derive API)
-- **Tokenization**: tiktoken-rs 0.9.1+ (OpenAI models)
+- **Tokenization**: 
+  - tiktoken-rs 0.9.1+ (OpenAI models - offline)
+  - Adaptive estimation algorithm (Claude models - offline)
+  - Anthropic API via reqwest 0.12+ (Claude accurate mode - optional)
+- **Async Runtime**: tokio 1.0+ (for API calls)
 - **Error Handling**: anyhow 1.0.102+, thiserror 1.0+
 - **Fuzzy Matching**: strsim 0.11+ (Levenshtein distance)
-- **Testing**: 100 tests with criterion benchmarks
+- **Testing**: 152 tests with criterion benchmarks
 
 ### Key Features
 
@@ -395,14 +449,21 @@ From our [Constitution](.specify/memory/constitution.md):
 - [x] GitHub release binaries with checksums
 - [x] Automated release pipeline
 
-### v0.2.0 (Future - More Models)
+### v0.2.0 (Current Release)
 
-- [ ] Anthropic Claude support
+- [x] Anthropic Claude support (3 models)
+- [x] Adaptive token estimation algorithm (code/prose detection)
+- [x] Optional accurate mode via Anthropic API
+- [x] Interactive consent prompt for API calls
+- [x] Non-interactive mode support (`-y` flag)
+
+### v0.3.0 (Future - More Models)
+
 - [ ] Google Gemini support
 - [ ] Meta Llama support
 - [ ] Mistral support
 
-### v0.3.0 (Future - Stable API)
+### v0.4.0 (Future - Stable API)
 
 - [ ] Stable library API for embedding
 - [ ] Token ID output (debug mode)
@@ -450,5 +511,5 @@ Special thanks to:
 
 ---
 
-**Status**: ✅ MVP Complete (Linux) | **Version**: 0.1.0  
+**Status**: ✅ v0.2.0 Complete (Claude Support) | **Version**: 0.2.0  
 **Author**: [Shaun Burdick](https://github.com/shaunburdick)

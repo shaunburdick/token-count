@@ -16,7 +16,7 @@
 //! use token_count::count_tokens;
 //!
 //! // Count tokens for a specific model
-//! let result = count_tokens("Hello world", "gpt-4").unwrap();
+//! let result = count_tokens("Hello world", "gpt-4", false).unwrap();
 //! assert_eq!(result.token_count, 2);
 //! println!("Tokens: {}", result.token_count);
 //! println!("Model: {}", result.model_info.name);
@@ -37,7 +37,7 @@
 //! use token_count::{count_tokens, TokenError};
 //!
 //! // Unknown model returns an error with suggestions
-//! match count_tokens("test", "gpt-5") {
+//! match count_tokens("test", "gpt-5", false) {
 //!     Ok(_) => panic!("Should have failed"),
 //!     Err(TokenError::UnknownModel { model, suggestion }) => {
 //!         assert_eq!(model, "gpt-5");
@@ -55,10 +55,12 @@
 //! - [`output`] - Output formatting (simple, verbose, debug)
 //! - [`cli`] - Command-line interface components
 //! - [`error`] - Error types and handling
+//! - [`api`] - API integration utilities (consent prompts, etc.)
 //!
 //! The main entry point is the [`count_tokens`] function, which takes text and a model name
 //! and returns a [`TokenizationResult`] with the token count and model information.
 
+pub mod api;
 pub mod cli;
 pub mod error;
 pub mod output;
@@ -72,32 +74,38 @@ pub use tokenizers::{ModelInfo, TokenizationResult, Tokenizer};
 ///
 /// # Arguments
 ///
-/// * `text` - The input text to tokenize
-/// * `model_name` - The name of the model to use (canonical name or alias)
+/// * `text` - The text to tokenize
+/// * `model_name` - The model to use for tokenization (e.g., "gpt-4", "claude-sonnet-4-6")
+/// * `accurate` - Whether to use accurate mode for models that support it (Claude API)
 ///
 /// # Returns
 ///
-/// Returns a `TokenizationResult` containing the token count and model information
+/// A `Result` containing the token count and model information
 ///
 /// # Errors
 ///
-/// Returns an error if:
-/// - The model name is unknown
-/// - Tokenization fails
+/// Returns `TokenError` if:
+/// - The model is not supported
+/// - The tokenizer fails to initialize
+/// - Token counting fails
 ///
 /// # Example
 ///
 /// ```
 /// use token_count::count_tokens;
 ///
-/// let result = count_tokens("Hello world", "gpt-4").unwrap();
+/// let result = count_tokens("Hello world", "gpt-4", false).unwrap();
 /// assert_eq!(result.token_count, 2);
 /// ```
-pub fn count_tokens(text: &str, model_name: &str) -> Result<TokenizationResult, TokenError> {
+pub fn count_tokens(
+    text: &str,
+    model_name: &str,
+    accurate: bool,
+) -> Result<TokenizationResult, TokenError> {
     use tokenizers::registry::ModelRegistry;
 
     let registry = ModelRegistry::global();
-    let tokenizer = registry.get_tokenizer(model_name)?;
+    let tokenizer = registry.get_tokenizer(model_name, accurate)?;
 
     let token_count =
         tokenizer.count_tokens(text).map_err(|e| TokenError::Tokenization(e.to_string()))?;

@@ -24,6 +24,14 @@ pub struct Cli {
     /// List all supported models and exit
     #[arg(long)]
     pub list_models: bool,
+
+    /// Use API for exact token counts (requires ANTHROPIC_API_KEY for Claude models)
+    #[arg(long)]
+    pub accurate: bool,
+
+    /// Skip API consent prompt (for scripting/automation, requires --accurate)
+    #[arg(short = 'y', long)]
+    pub yes: bool,
 }
 
 impl Cli {
@@ -80,5 +88,26 @@ mod tests {
     fn test_list_models_flag() {
         let cli = Cli::parse_from(["token-count", "--list-models"]);
         assert!(cli.list_models);
+    }
+
+    #[test]
+    fn test_accurate_flag() {
+        let cli = Cli::parse_from(["token-count", "--model", "claude", "--accurate"]);
+        assert!(cli.accurate);
+        assert!(!cli.yes);
+    }
+
+    #[test]
+    fn test_yes_flag() {
+        let cli = Cli::parse_from(["token-count", "--model", "claude", "--accurate", "-y"]);
+        assert!(cli.accurate);
+        assert!(cli.yes);
+    }
+
+    #[test]
+    fn test_yes_long_form() {
+        let cli = Cli::parse_from(["token-count", "--model", "claude", "--accurate", "--yes"]);
+        assert!(cli.accurate);
+        assert!(cli.yes);
     }
 }
