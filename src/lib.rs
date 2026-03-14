@@ -55,10 +55,12 @@
 //! - [`output`] - Output formatting (simple, verbose, debug)
 //! - [`cli`] - Command-line interface components
 //! - [`error`] - Error types and handling
+//! - [`api`] - API integration utilities (consent prompts, etc.)
 //!
 //! The main entry point is the [`count_tokens`] function, which takes text and a model name
 //! and returns a [`TokenizationResult`] with the token count and model information.
 
+pub mod api;
 pub mod cli;
 pub mod error;
 pub mod output;
