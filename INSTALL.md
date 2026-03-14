@@ -60,6 +60,9 @@ cargo install token-count
 **Requirements:**
 - Rust 1.85.0 or later
 - Cargo (comes with Rust)
+- CMake 3.10 or later (for building SentencePiece tokenizer)
+
+See "Build from Source" section below for CMake installation instructions.
 
 **Update:**
 ```bash
@@ -152,6 +155,27 @@ sudo install -m 755 target/release/token-count /usr/local/bin/token-count
 **Requirements:**
 - Rust 1.85.0 or later
 - Git
+- CMake 3.10 or later (for SentencePiece tokenizer)
+
+**Installing CMake:**
+
+Ubuntu/Debian:
+```bash
+sudo apt-get update
+sudo apt-get install cmake
+```
+
+macOS:
+```bash
+brew install cmake
+```
+
+Windows:
+- Download installer from https://cmake.org/download/
+- Or with Chocolatey: `choco install cmake`
+- Or with Scoop: `scoop install cmake`
+
+**Note:** CMake is only required at build time, not runtime. Pre-built binaries do not require CMake.
 
 ## Platform Support
 

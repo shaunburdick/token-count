@@ -3,6 +3,7 @@
 use crate::error::TokenError;
 use crate::tokenizers::{
     claude::{claude_models, ClaudeTokenizer},
+    google::{google_models, GoogleTokenizer},
     openai::OpenAITokenizer,
     ModelInfo, Tokenizer,
 };
@@ -81,6 +82,11 @@ impl ModelRegistry {
             registry.add_model(model);
         }
 
+        // Google Gemini models
+        for model in google_models() {
+            registry.add_model(model);
+        }
+
         registry
     }
 
@@ -141,23 +147,31 @@ impl ModelRegistry {
         let config = self.get_model(name)?;
 
         // Detect tokenizer type based on encoding
-        if config.encoding == "anthropic-claude" {
-            // Claude tokenizer (estimation or API)
-            let tokenizer = ClaudeTokenizer::new(config.clone(), use_accurate)?;
-            Ok(Box::new(tokenizer))
-        } else {
-            // OpenAI tokenizer (tiktoken)
-            let model_info = ModelInfo {
-                name: config.name.clone(),
-                encoding: config.encoding.clone(),
-                context_window: config.context_window,
-                description: config.description.clone(),
-            };
+        match config.encoding.as_str() {
+            "anthropic-claude" => {
+                // Claude tokenizer (estimation or API)
+                let tokenizer = ClaudeTokenizer::new(config.clone(), use_accurate)?;
+                Ok(Box::new(tokenizer))
+            }
+            "gemini-gemma3" => {
+                // Google Gemini tokenizer
+                let tokenizer = GoogleTokenizer::new(config.clone())?;
+                Ok(Box::new(tokenizer))
+            }
+            _ => {
+                // OpenAI tokenizer (tiktoken)
+                let model_info = ModelInfo {
+                    name: config.name.clone(),
+                    encoding: config.encoding.clone(),
+                    context_window: config.context_window,
+                    description: config.description.clone(),
+                };
 
-            let tokenizer = OpenAITokenizer::new(&config.encoding, model_info)
-                .map_err(|e| TokenError::Tokenization(e.to_string()))?;
+                let tokenizer = OpenAITokenizer::new(&config.encoding, model_info)
+                    .map_err(|e| TokenError::Tokenization(e.to_string()))?;
 
-            Ok(Box::new(tokenizer))
+                Ok(Box::new(tokenizer))
+            }
         }
     }
 
@@ -232,7 +246,7 @@ mod tests {
     fn test_list_models() {
         let registry = ModelRegistry::new();
         let models = registry.list_models();
-        assert_eq!(models.len(), 7); // 4 OpenAI + 3 Claude
+        assert_eq!(models.len(), 11); // 4 OpenAI + 3 Claude + 4 Gemini
         assert!(models.iter().any(|m| m.name == "gpt-3.5-turbo"));
         assert!(models.iter().any(|m| m.name == "gpt-4"));
         assert!(models.iter().any(|m| m.name == "gpt-4-turbo"));
@@ -240,6 +254,10 @@ mod tests {
         assert!(models.iter().any(|m| m.name == "claude-opus-4-6"));
         assert!(models.iter().any(|m| m.name == "claude-sonnet-4-6"));
         assert!(models.iter().any(|m| m.name == "claude-haiku-4-5"));
+        assert!(models.iter().any(|m| m.name == "gemini-2.5-pro"));
+        assert!(models.iter().any(|m| m.name == "gemini-2.5-flash"));
+        assert!(models.iter().any(|m| m.name == "gemini-2.5-flash-lite"));
+        assert!(models.iter().any(|m| m.name == "gemini-3-pro-preview"));
     }
 
     #[test]

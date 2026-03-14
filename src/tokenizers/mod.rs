@@ -40,6 +40,7 @@
 //! See [`registry::ModelRegistry`] for model configuration and aliases.
 
 pub mod claude;
+pub mod google;
 pub mod openai;
 pub mod registry;
 
