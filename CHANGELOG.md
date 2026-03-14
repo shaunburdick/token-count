@@ -5,11 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-03-13
+## [0.1.0] - 2026-03-14
 
-### 🎉 Initial Release - Linux MVP
+### 🎉 Initial Release
 
-The first release of `token-count` provides accurate token counting for OpenAI models on Linux.
+The first release of `token-count` provides accurate token counting for OpenAI models across Linux, macOS, and Windows with multiple installation methods.
 
 ### Added
 
@@ -33,10 +33,25 @@ The first release of `token-count` provides accurate token counting for OpenAI m
 - `--help` - Display help information
 - `--version` - Display version information
 
+#### Installation Methods
+- **Install script** (`install.sh`) - One-line installation for Linux/macOS with checksum verification
+- **Homebrew tap** - `brew install shaunburdick/tap/token-count` (macOS/Linux)
+- **Cargo** - `cargo install token-count` (published to crates.io)
+- **Pre-built binaries** - GitHub Releases with 4 platform targets
+- **Manual build** - From source with Rust 1.85.0+
+
+#### Distribution & Automation
+- **GitHub Actions release workflow** with multi-platform builds
+- **Automated Homebrew formula updates** on each release
+- **SHA256 checksums** for all binary downloads
+- **Signed releases** on GitHub with detailed release notes
+
 #### Documentation
-- Comprehensive README with usage examples
+- Comprehensive README with updated installation section
+- Detailed INSTALL.md with platform-specific instructions
+- SECURITY.md with vulnerability reporting process
 - API documentation with examples
-- 91 tests covering all functionality
+- 100 tests covering all functionality
 - Performance benchmarks
 - CHANGELOG following Keep a Changelog format
 
@@ -71,7 +86,7 @@ The first release of `token-count` provides accurate token counting for OpenAI m
 - Zero runtime dependencies (all tokenizers embedded)
 
 #### Quality Assurance
-- **91 tests passing** (13 test suites)
+- **100 tests passing** (integration + unit tests)
 - **Zero clippy warnings** (strict linting)
 - **Zero security vulnerabilities** (cargo audit)
 - **100% type safety** (no suppressions)
@@ -79,33 +94,42 @@ The first release of `token-count` provides accurate token counting for OpenAI m
 
 ### Platform Support
 
-#### Supported
-- ✅ **Linux**: Ubuntu 22.04+ (tested and validated)
+#### Fully Supported
+- ✅ **Linux x86_64**: Ubuntu 22.04+ (tested and validated)
+- ✅ **macOS Intel (x86_64)**: macOS 10.15+ (Catalina)
+- ✅ **macOS Apple Silicon (aarch64)**: macOS 11.0+ (Big Sur)
+- ✅ **Windows x86_64**: Windows 10+ (tested)
 
-#### Not Yet Supported
-- ❌ **macOS**: Planned for v0.2.0
-- ❌ **Windows**: Planned for v0.2.0
+#### Planned
+- ⏳ **Linux ARM64**: Build from source available
+- ⏳ **Windows ARM64**: Future consideration
 
 ### Known Limitations
 
-1. **Linux-only MVP**: macOS and Windows support coming in v0.2.0
-2. **OpenAI models only**: Other providers (Claude, Gemini, Llama) planned for v0.3.0
-3. **Debug mode placeholder**: Full token ID display requires tokenizer API enhancements
-4. **No streaming output**: Counts only (not individual tokens)
+1. **OpenAI models only**: Other providers (Claude, Gemini, Llama) planned for v0.2.0
+2. **Debug mode placeholder**: Full token ID display requires tokenizer API enhancements
+3. **No streaming output**: Counts only (not individual tokens)
+4. **Stack overflow with pathological inputs**: Highly repetitive single-character inputs (1MB+) can cause stack overflow due to regex backtracking in tiktoken-rs
 
 These are intentional MVP scope limitations, not bugs.
 
 ### Installation
 
 ```bash
-# From source (requires Rust 1.85.0+)
-cargo install --git https://github.com/shaunburdick/token-count
+# Quick install (Linux/macOS)
+curl -sSfL https://raw.githubusercontent.com/shaunburdick/token-count/main/install.sh | bash
 
-# Manual build
-git clone https://github.com/shaunburdick/token-count
-cd token-count
-cargo build --release
+# Homebrew (macOS/Linux)
+brew install shaunburdick/tap/token-count
+
+# Cargo (all platforms)
+cargo install token-count
+
+# Manual download
+# Visit: https://github.com/shaunburdick/token-count/releases
 ```
+
+See [INSTALL.md](INSTALL.md) for detailed instructions.
 
 ### Examples
 
@@ -141,19 +165,12 @@ This is the initial release. No migration required.
 ## [Unreleased]
 
 ### Planned for v0.2.0
-- macOS support (Intel + Apple Silicon)
-- Windows support
-- Homebrew tap for easy installation
-- GitHub release binaries
-- Installation script
-
-### Planned for v0.3.0
 - Anthropic Claude model support
 - Google Gemini model support
 - Meta Llama model support
 - Mistral model support
 
-### Planned for v1.0.0
+### Planned for v0.3.0
 - Stable library API
 - Token ID output in debug mode
 - Batch processing mode

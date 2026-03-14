@@ -1,12 +1,14 @@
 [package]
 name = "token-count"
 version = "0.1.0"
-authors = ["Shaun Burdick <shaun.burdick@gmail.com>"]
+authors = ["Shaun Burdick <hello@burdick.dev>"]
 edition = "2021"
 rust-version = "1.85.0"
 license = "MIT"
 description = "Count tokens for LLM models using exact tokenization"
 repository = "https://github.com/shaunburdick/token-count"
+homepage = "https://github.com/shaunburdick/token-count"
+readme = "README.md"
 keywords = ["tokenizer", "llm", "gpt", "cli", "tokens"]
 categories = ["command-line-utilities", "text-processing"]
 

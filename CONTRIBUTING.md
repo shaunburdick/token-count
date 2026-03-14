@@ -380,11 +380,148 @@ token-count/
 └── LICENSE                # MIT license
 ```
 
+## Release Process
+
+This section is for maintainers who have permission to create releases.
+
+### Pre-Release Checklist
+
+Before creating a release, ensure:
+
+- [ ] All tests pass: `cargo test`
+- [ ] No clippy warnings: `cargo clippy -- -D warnings`
+- [ ] Code is formatted: `cargo fmt --check`
+- [ ] CHANGELOG.md is updated with version and date
+- [ ] README.md reflects current features
+- [ ] All documentation is up to date
+
+### Creating a Release
+
+1. **Update version in `Cargo.toml`**:
+   ```toml
+   version = "0.1.0"  # Increment according to semver
+   ```
+
+2. **Update CHANGELOG.md**:
+   ```markdown
+   ## [0.1.0] - 2026-03-14
+   
+   ### Added
+   - Feature descriptions...
+   ```
+
+3. **Commit version bump**:
+   ```bash
+   git add Cargo.toml CHANGELOG.md
+   git commit -m "chore: bump version to 0.1.0"
+   git push origin main
+   ```
+
+4. **Create and push tag**:
+   ```bash
+   git tag v0.1.0
+   git push origin v0.1.0
+   ```
+
+5. **Monitor GitHub Actions**:
+   - Go to: https://github.com/shaunburdick/token-count/actions
+   - Verify the release workflow completes successfully
+   - Check that all 4 platform binaries are built
+   - Verify checksums.txt is generated
+
+6. **Verify draft release**:
+   - Go to: https://github.com/shaunburdick/token-count/releases
+   - Review the auto-generated draft release
+   - Check that all assets are attached:
+     - token-count-VERSION-x86_64-unknown-linux-gnu.tar.gz
+     - token-count-VERSION-x86_64-apple-darwin.tar.gz
+     - token-count-VERSION-aarch64-apple-darwin.tar.gz
+     - token-count-VERSION-x86_64-pc-windows-msvc.zip
+     - checksums.txt
+   - Edit release notes if needed
+   - **Publish the release** (remove draft status)
+
+7. **Verify automated updates**:
+   - **Homebrew**: Check that homebrew-tap repository received an automatic commit updating the formula
+   - **crates.io**: Verify package is published at https://crates.io/crates/token-count
+
+8. **Test all installation methods**:
+   ```bash
+   # Install script
+   curl -sSfL https://raw.githubusercontent.com/shaunburdick/token-count/main/install.sh | bash
+   token-count --version  # Should show new version
+   
+   # Homebrew (wait ~5 minutes for formula update)
+   brew update
+   brew upgrade token-count
+   token-count --version
+   
+   # Cargo
+   cargo install token-count --force
+   token-count --version
+   
+   # Manual download
+   # Download from releases page and verify checksum
+   ```
+
+### Hotfix Releases
+
+For critical bug fixes:
+
+1. Create hotfix branch from the release tag:
+   ```bash
+   git checkout -b hotfix/v0.1.1 v0.1.0
+   ```
+
+2. Make the fix and test thoroughly
+
+3. Follow the release process above with the new version
+
+4. Merge hotfix back to main:
+   ```bash
+   git checkout main
+   git merge hotfix/v0.1.1
+   git push origin main
+   ```
+
+### Rollback Procedure
+
+If a release has critical issues:
+
+1. **Delete the GitHub release** (not the tag):
+   - Go to releases page
+   - Click "Delete" on the problematic release
+
+2. **Notify users**:
+   - Create a GitHub issue explaining the problem
+   - Update CHANGELOG.md with a note
+
+3. **Create a fixed release** following the process above
+
+### Troubleshooting Releases
+
+**Release workflow fails:**
+- Check GitHub Actions logs for errors
+- Common issues:
+  - Compilation errors on specific platforms
+  - Missing secrets (HOMEBREW_TAP_TOKEN, CARGO_REGISTRY_TOKEN)
+  - Network issues downloading dependencies
+
+**Homebrew formula doesn't update:**
+- Verify HOMEBREW_TAP_TOKEN secret is valid
+- Check that the tag is an official release (no `-` in version)
+- Manually update formula as fallback (see specs/002-installation/HOMEBREW-SETUP.md)
+
+**crates.io publish fails:**
+- Verify CARGO_REGISTRY_TOKEN is valid
+- Check that version doesn't already exist
+- Ensure Cargo.toml metadata is complete
+
 ## Getting Help
 
 - **Issues**: [GitHub Issues](https://github.com/shaunburdick/token-count/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/shaunburdick/token-count/discussions)
-- **Email**: shaun.burdick@gmail.com
+- **Email**: hello@burdick.dev
 
 ## License
 

@@ -37,28 +37,33 @@ Context window: 128000 tokens (0.1109% used)
 
 ## Installation
 
-### From Source (Requires Rust 1.85.0+)
+### Quick Install (Recommended)
 
+**Linux / macOS:**
 ```bash
-cargo install --git https://github.com/shaunburdick/token-count
+curl -sSfL https://raw.githubusercontent.com/shaunburdick/token-count/main/install.sh | bash
 ```
 
-### Manual Build
-
+**Homebrew (macOS / Linux):**
 ```bash
-git clone https://github.com/shaunburdick/token-count
-cd token-count
-cargo build --release
-# Binary at: target/release/token-count
+brew install shaunburdick/tap/token-count
 ```
+
+**Cargo (All Platforms):**
+```bash
+cargo install token-count
+```
+
+**Manual Download:**  
+Download pre-built binaries from [GitHub Releases](https://github.com/shaunburdick/token-count/releases).
+
+For detailed installation instructions, troubleshooting, and platform-specific guidance, see [INSTALL.md](INSTALL.md).
 
 ### System Requirements
 
-- **Platform**: Linux (Ubuntu 22.04+)
-- **Rust**: 1.85.0 or later (for building)
+- **Platform**: Linux x86_64, macOS (Intel/Apple Silicon), Windows x86_64
 - **Runtime**: No dependencies (static binary)
-
-**Note**: macOS and Windows support coming in future releases.
+- **Build from source**: Rust 1.85.0 or later
 
 ## Usage
 
@@ -343,7 +348,7 @@ cargo clippy -- -D warnings     # Strict linting
 
 ### Reporting Security Issues
 
-If you discover a security vulnerability, please email security@token-count.dev (or open a private security advisory on GitHub). Do not open public issues for security concerns.
+If you discover a security vulnerability, please email hello@burdick.dev (or open a private security advisory on GitHub). Do not open public issues for security concerns.
 
 ## Architecture
 
@@ -377,7 +382,7 @@ From our [Constitution](.specify/memory/constitution.md):
 
 ## Roadmap
 
-### v0.1.0 (Current - Linux MVP) ✅
+### v0.1.0 (Current Release) ✅
 
 - [x] OpenAI model support (4 models)
 - [x] CLI with model selection and verbosity
@@ -385,24 +390,19 @@ From our [Constitution](.specify/memory/constitution.md):
 - [x] UTF-8 validation with error reporting
 - [x] Comprehensive test suite (100 tests)
 - [x] Performance benchmarks
-- [x] Linux support (Ubuntu 22.04+)
+- [x] Cross-platform support (Linux, macOS, Windows)
+- [x] Multiple installation methods (install.sh, Homebrew, cargo, manual)
+- [x] GitHub release binaries with checksums
+- [x] Automated release pipeline
 
-### v0.2.0 (Future - Cross-Platform)
-
-- [ ] macOS support (Intel + Apple Silicon)
-- [ ] Windows support
-- [ ] Homebrew installation
-- [ ] GitHub release binaries
-- [ ] Installation script
-
-### v0.3.0 (Future - More Models)
+### v0.2.0 (Future - More Models)
 
 - [ ] Anthropic Claude support
 - [ ] Google Gemini support
 - [ ] Meta Llama support
 - [ ] Mistral support
 
-### v1.0.0 (Future - Stable API)
+### v0.3.0 (Future - Stable API)
 
 - [ ] Stable library API for embedding
 - [ ] Token ID output (debug mode)
