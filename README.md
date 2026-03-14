@@ -39,7 +39,7 @@ Context window: 1000000 tokens (0.0142% used)
 ✅ **Accurate** - Exact tokenization for OpenAI and Google Gemini, adaptive estimation for Claude  
 ✅ **Fast** - ~2.7µs for small inputs (3,700x faster than 10ms target)  
 ✅ **Efficient** - 57MB memory for 12MB files (8.8x under 500MB limit)  
-✅ **Compact** - 11.5MB binary with all tokenizers embedded  
+✅ **Compact** - 16.8MB binary with all tokenizers embedded  
 ✅ **Offline** - Zero runtime dependencies for OpenAI and Gemini; optional API for Claude  
 ✅ **Simple** - POSIX-style interface, works like `wc` or `grep`
 

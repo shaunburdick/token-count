@@ -40,25 +40,6 @@ impl GeminiTokenizer {
         let result = self.tokenizer.count_tokens(text, None);
         Ok(result.total_tokens)
     }
-
-    /// Get detailed token information for debug mode
-    ///
-    /// Returns token IDs and decoded tokens.
-    #[allow(dead_code)]
-    pub fn compute_tokens(&self, text: &str) -> Result<Vec<(u32, String)>> {
-        let result = self.tokenizer.compute_tokens(text);
-
-        let mut tokens = Vec::new();
-        for info in result.tokens_info {
-            for (id, token) in info.token_ids.iter().zip(&info.tokens) {
-                // Tokens are Vec<u8>, convert to String (lossy for invalid UTF-8)
-                let token_str = String::from_utf8_lossy(token).to_string();
-                tokens.push((*id, token_str));
-            }
-        }
-
-        Ok(tokens)
-    }
 }
 
 #[cfg(test)]
@@ -86,14 +67,5 @@ mod tests {
         let tokenizer = GeminiTokenizer::new("gemini-2.5-flash").unwrap();
         let count = tokenizer.count_tokens("").unwrap();
         assert_eq!(count, 0);
-    }
-
-    #[test]
-    fn test_compute_tokens() {
-        let tokenizer = GeminiTokenizer::new("gemini-2.5-flash").unwrap();
-        let tokens = tokenizer.compute_tokens("Hello").unwrap();
-        assert!(!tokens.is_empty());
-        assert!(tokens[0].0 > 0); // Token ID should be positive
-        assert!(!tokens[0].1.is_empty()); // Token string should not be empty
     }
 }
