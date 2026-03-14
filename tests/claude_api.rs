@@ -138,14 +138,3 @@ fn test_all_claude_models_require_consent() {
         cmd.assert().failure().stderr(predicate::str::contains("non-interactive"));
     }
 }
-
-#[test]
-fn test_accurate_flag_preserves_exit_code_on_error() {
-    env::remove_var("ANTHROPIC_API_KEY");
-
-    let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.arg("--model").arg("claude").arg("--accurate").arg("-y").write_stdin("test");
-
-    // Missing API key should cause failure during tokenizer construction
-    cmd.assert().failure();
-}

@@ -3,7 +3,7 @@ use token_count::tokenizers::registry::ModelRegistry;
 
 fn benchmark_small_input(c: &mut Criterion) {
     let registry = ModelRegistry::global();
-    let tokenizer = registry.get_tokenizer("gpt-4").unwrap();
+    let tokenizer = registry.get_tokenizer("gpt-4", false).unwrap();
     let text = "Hello world! This is a small test input."; // ~100 bytes
 
     c.bench_function("tokenization/small_100bytes", |b| {
@@ -13,7 +13,7 @@ fn benchmark_small_input(c: &mut Criterion) {
 
 fn benchmark_medium_input(c: &mut Criterion) {
     let registry = ModelRegistry::global();
-    let tokenizer = registry.get_tokenizer("gpt-4").unwrap();
+    let tokenizer = registry.get_tokenizer("gpt-4", false).unwrap();
 
     // Generate ~1KB of text
     let text = "The quick brown fox jumps over the lazy dog. ".repeat(20); // ~900 bytes
@@ -25,7 +25,7 @@ fn benchmark_medium_input(c: &mut Criterion) {
 
 fn benchmark_large_input(c: &mut Criterion) {
     let registry = ModelRegistry::global();
-    let tokenizer = registry.get_tokenizer("gpt-4").unwrap();
+    let tokenizer = registry.get_tokenizer("gpt-4", false).unwrap();
 
     // Generate ~10KB of text
     let text = "The quick brown fox jumps over the lazy dog. ".repeat(200); // ~9KB
@@ -43,7 +43,7 @@ fn benchmark_models(c: &mut Criterion) {
 
     for model in models {
         let registry = ModelRegistry::global();
-        let tokenizer = registry.get_tokenizer(model).unwrap();
+        let tokenizer = registry.get_tokenizer(model, false).unwrap();
 
         group.bench_with_input(BenchmarkId::from_parameter(model), &text, |b, &text| {
             b.iter(|| tokenizer.count_tokens(black_box(text)))
