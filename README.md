@@ -4,16 +4,20 @@
 
 [![Rust](https://img.shields.io/badge/rust-1.85%2B-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-152%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-178%20passing-brightgreen.svg)](tests/)
 
 ## Overview
 
-`token-count` is a POSIX-style command-line tool that counts tokens for various LLM models. It supports exact tokenization for OpenAI models (offline) and adaptive estimation for Claude models (with optional API mode for exact counts). Pipe any text in, get token counts out—fast, offline, and accurate.
+`token-count` is a POSIX-style command-line tool that counts tokens for various LLM models. It supports exact tokenization for OpenAI and Google Gemini models (offline), and adaptive estimation for Claude models (with optional API mode for exact counts). Pipe any text in, get token counts out—fast, offline, and accurate.
 
 ```bash
 # OpenAI models (exact, offline)
 echo "Hello world" | token-count --model gpt-4
 2
+
+# Google Gemini models (exact, offline)
+echo "Hello, Gemini!" | token-count --model gemini
+4
 
 # Claude models (estimation, offline)
 echo "Hello, Claude!" | token-count --model claude
@@ -32,11 +36,11 @@ Context window: 1000000 tokens (0.0142% used)
 
 ## Features
 
-✅ **Accurate** - Exact tokenization for OpenAI, adaptive estimation for Claude  
+✅ **Accurate** - Exact tokenization for OpenAI and Google Gemini, adaptive estimation for Claude  
 ✅ **Fast** - ~2.7µs for small inputs (3,700x faster than 10ms target)  
 ✅ **Efficient** - 57MB memory for 12MB files (8.8x under 500MB limit)  
-✅ **Compact** - 9.2MB binary with all tokenizers embedded  
-✅ **Offline** - Zero runtime dependencies for OpenAI; optional API for Claude  
+✅ **Compact** - 11.5MB binary with all tokenizers embedded  
+✅ **Offline** - Zero runtime dependencies for OpenAI and Gemini; optional API for Claude  
 ✅ **Simple** - POSIX-style interface, works like `wc` or `grep`
 
 ## Installation
@@ -67,7 +71,7 @@ For detailed installation instructions, troubleshooting, and platform-specific g
 
 - **Platform**: Linux x86_64, macOS (Intel/Apple Silicon), Windows x86_64
 - **Runtime**: No dependencies (static binary)
-- **Build from source**: Rust 1.85.0 or later
+- **Build from source**: Rust 1.85.0 or later, CMake 3.10+ (for gemini-tokenizer SentencePiece dependency)
 
 ## Usage
 
@@ -178,6 +182,17 @@ token-count --version
 | claude-sonnet-4-6 | 1,000,000 | claude, sonnet, sonnet-4-6, sonnet-4.6 | ±10% accuracy |
 | claude-haiku-4-5 | 200,000 | haiku, haiku-4-5, haiku-4.5 | ±10% accuracy |
 
+### Google Gemini Models (Exact Tokenization - Offline)
+
+| Model | Encoding | Context Window | Aliases |
+|-------|----------|----------------|---------|
+| gemini-2.5-pro | gemini-gemma3 | 1,000,000 | gemini-pro, gemini-2-pro, gemini-2.5 |
+| gemini-2.5-flash | gemini-gemma3 | 1,000,000 | gemini, gemini-flash, gemini-2-flash |
+| gemini-2.5-flash-lite | gemini-gemma3 | 1,000,000 | gemini-lite, gemini-2-lite, gemini-2.5-lite |
+| gemini-3-pro-preview | gemini-gemma3 | 1,000,000 | gemini-3-pro, gemini-3 |
+
+**Note**: The `gemini` alias defaults to `gemini-2.5-flash`, the recommended general-purpose model.
+
 **Claude Tokenization Modes:**
 
 **Offline Estimation (Default)** - No API key needed:
@@ -207,8 +222,8 @@ cat file.txt | token-count --model claude --accurate -y
 - Target: ±10% accuracy for typical inputs
 
 All models support:
-- Case-insensitive names (e.g., `GPT-4`, `gpt-4`, `Gpt-4`)
-- Provider prefix (e.g., `openai/gpt-4`, `anthropic/claude-sonnet-4-6`)
+- Case-insensitive names (e.g., `GPT-4`, `gpt-4`, `Gpt-4`, `GEMINI`)
+- Provider prefix (e.g., `openai/gpt-4`, `anthropic/claude-sonnet-4-6`, `google/gemini`)
 
 ## Error Handling
 

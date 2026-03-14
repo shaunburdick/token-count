@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-14
+
+### 🚀 Google Gemini Model Support
+
+The third release adds support for Google Gemini models with exact, offline tokenization using the gemini-tokenizer library. Completes the "Big 3" LLM providers (OpenAI, Anthropic, Google).
+
+### Added
+
+#### Gemini Tokenization
+- **4 Gemini models** with exact offline tokenization:
+  - `gemini-2.5-pro` - Pro model (GA, 1M context, deprecated June 2026)
+  - `gemini-2.5-flash` - Default model (GA, 1M context, deprecated June 2026)
+  - `gemini-2.5-flash-lite` - Lite model (GA, 1M context, deprecated June 2026)
+  - `gemini-3-pro-preview` - Preview model (1M context)
+- **Offline tokenization** using Gemma 3 SentencePiece tokenizer (via `gemini-tokenizer` v0.2.0)
+- **Model aliases**:
+  - `gemini` → `gemini-2.5-flash` (default)
+  - `gemini-pro` → `gemini-2.5-pro`
+  - `gemini-flash` → `gemini-2.5-flash`
+  - `gemini-lite` → `gemini-2.5-flash-lite`
+  - `gemini-3-pro` → `gemini-3-pro-preview`
+  - Provider prefix: `google/gemini`, `google/gemini-pro`, etc.
+- **Case-insensitive model names**: `GEMINI`, `Gemini`, `gemini` all work
+
+#### Testing
+- **27 new tests** (10 unit + 17 integration tests)
+- **Total: 178 tests** (increased from 152)
+- All tests passing with zero clippy warnings
+
+### Changed
+
+- **Test count badge**: Updated from 152 to 178 passing tests
+- **Binary size**: Increased from 9.2MB to ~11.5MB (added SentencePiece tokenizer)
+- **Supported models**: Now 11 total models (4 OpenAI + 3 Claude + 4 Gemini)
+- **README**: Updated with Gemini examples and CMake build requirement
+
+### Technical Details
+
+#### New Modules
+- `src/tokenizers/google/` - Google Gemini tokenizer implementation
+  - `mod.rs` - Main tokenizer with `Tokenizer` trait implementation
+  - `models.rs` - 4 model definitions with 14+ aliases
+  - `tokenizer.rs` - Wrapper around `gemini-tokenizer` crate
+
+#### Dependencies Added
+- `gemini-tokenizer` 0.2.0 - Official Google tokenizer (via sentencepiece)
+- Transitive: `sentencepiece`, `sentencepiece-sys`, `sha2`
+
+#### Build Requirements
+- **CMake 3.10+** now required for building from source (SentencePiece dependency)
+- No change to runtime requirements (still zero dependencies for end users)
+
+#### Registry Updates
+- Extended model registry to support `gemini-gemma3` encoding
+- Added Gemini models to `--list-models` output
+- Model count increased from 7 to 11
+
+### Notes
+
+- **Model Scope**: Initial spec planned for 8 Gemini models, but `gemini-tokenizer` v0.2.0 only supports 4 models. Additional models (gemini-1.5-*, gemini-3.1-*) will be added when upstream library adds support.
+- **Default Model**: Uses `gemini-2.5-flash` (not `gemini-3-flash-preview`) since it's still GA until June 2026.
+- **Build-time vs Runtime**: CMake is a build-time dependency only; pre-built binaries don't require users to have CMake installed.
+
 ## [0.2.0] - 2026-03-14
 
 ### 🚀 Claude Model Support
