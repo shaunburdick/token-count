@@ -217,7 +217,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.version }}
           name: token-count ${{ steps.version.outputs.version }}
           body_path: release/RELEASE_NOTES.md
-          draft: true
+          draft: false
           prerelease: ${{ contains(steps.version.outputs.version, '-') }}
           files: |
             release/*.tar.gz
