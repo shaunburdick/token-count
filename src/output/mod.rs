@@ -68,7 +68,7 @@ pub use debug::DebugFormatter;
 pub use simple::SimpleFormatter;
 pub use verbose::VerboseFormatter;
 
-use crate::tokenizers::{ModelInfo, TokenizationResult};
+use crate::tokenizers::TokenizationResult;
 
 /// Trait for formatting tokenization output
 pub trait OutputFormatter {
@@ -89,19 +89,6 @@ pub fn select_formatter(verbosity: u8) -> Box<dyn OutputFormatter> {
         2 => Box::new(VerboseFormatter),
         _ => Box::new(DebugFormatter),
     }
-}
-
-/// Extended tokenization result with token details for debug mode
-///
-/// Reserved for future enhancement in v0.2.0 when full token ID
-/// decoding will be implemented in the debug formatter.
-#[allow(dead_code)]
-#[derive(Debug, Clone)]
-pub struct DetailedResult {
-    pub token_count: usize,
-    pub model_info: ModelInfo,
-    pub token_ids: Vec<usize>,
-    pub sample_tokens: Vec<String>,
 }
 
 #[cfg(test)]
