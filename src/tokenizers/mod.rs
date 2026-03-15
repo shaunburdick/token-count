@@ -85,7 +85,7 @@ impl fmt::Display for TokenCount {
 }
 
 /// Detailed information about a single token
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TokenDetail {
     /// The token ID
     pub id: u32,
