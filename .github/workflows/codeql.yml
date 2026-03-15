@@ -1,0 +1,60 @@
+name: CodeQL Security Analysis
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Run at 00:00 UTC every Sunday (weekly security scan)
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['rust']
+        # CodeQL supports: c-cpp, csharp, go, java-kotlin, javascript-typescript, python, ruby, swift, rust
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@1.86.0
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # Use 'security-extended' for more comprehensive security checks
+          # Use 'security-and-quality' for both security and code quality checks
+          queries: security-extended
+          # build-mode: none is faster for Rust (uses rust-analyzer instead of full compilation)
+          # Recommended for most Rust projects to save time and disk space
+          build-mode: none
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+          # Upload SARIF results to GitHub Security tab
+          upload: true

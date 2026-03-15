@@ -138,9 +138,13 @@ cargo tree
 #### Code Review
 
 - All code changes reviewed before merging
-- Automated testing (100 tests) on every commit
+- Automated testing (181 tests) on every commit
 - Strict linting with zero warnings tolerated
 - No disabled security checks or suppressions
+- **CodeQL static analysis**: Runs on every push and pull request
+  - Security-extended query suite for comprehensive vulnerability detection
+  - Weekly scheduled scans for continuous security monitoring
+  - Results visible in GitHub Security tab
 
 ### Runtime Security
 

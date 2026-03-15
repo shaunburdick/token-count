@@ -5,6 +5,7 @@
 [![Rust](https://img.shields.io/badge/rust-1.86%2B-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-181%20passing-brightgreen.svg)](tests/)
+[![CodeQL](https://github.com/shaunburdick/token-count/workflows/CodeQL%20Security%20Analysis/badge.svg)](https://github.com/shaunburdick/token-count/actions/workflows/codeql.yml)
 
 ## Overview
 
