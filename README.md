@@ -480,5 +480,5 @@ Special thanks to:
 
 ---
 
-**Status**: ✅ v0.3.0 Complete (Gemini Support) | **Version**: 0.3.0  
+**Status**: ✅ v0.4.0 Complete (Debug Mode) | **Version**: 0.4.0  
 **Author**: [Shaun Burdick](https://github.com/shaunburdick)

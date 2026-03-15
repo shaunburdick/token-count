@@ -204,18 +204,47 @@ Follow Conventional Commits:
 ### Release Process
 
 **Semantic Versioning**
-- `MAJOR.MINOR.PATCH` (e.g., `0.3.0`)
+- `MAJOR.MINOR.PATCH` (e.g., `0.4.0`)
 - MAJOR: Breaking changes
 - MINOR: New features (backward compatible)
 - PATCH: Bug fixes
 
 **Release Workflow**
 1. Merge PR to main
-2. Bump version in `Cargo.toml`
-3. Commit version bump
-4. Create annotated tag: `git tag -a vX.Y.Z`
-5. Push tag: `git push origin vX.Y.Z`
-6. GitHub Actions handles the rest (build, release, publish)
+2. Update version in ALL of the following files:
+   - [ ] `Cargo.toml` - Line 3: `version = "X.Y.Z"`
+   - [ ] `README.md` - Bottom status line: `**Status**: ✅ vX.Y.Z Complete (...) | **Version**: X.Y.Z`
+   - [ ] `CHANGELOG.md` - Add new `## [X.Y.Z] - YYYY-MM-DD` section at top
+   - [ ] `CHANGELOG.md` - Add link at bottom: `[X.Y.Z]: https://github.com/shaunburdick/token-count/releases/tag/vX.Y.Z`
+3. Build and verify version: `cargo build --release && ./target/release/token-count --version`
+4. Run full test suite: `cargo test`
+5. Commit version bump: `git commit -m "chore: bump version to X.Y.Z"`
+6. Push to main: `git push origin main`
+7. Create annotated tag with release notes:
+   ```bash
+   git tag -a vX.Y.Z -m "Release vX.Y.Z: Brief description
+   
+   ## What's New
+   - Feature 1
+   - Feature 2
+   
+   ## Technical Details
+   - Detail 1
+   - Detail 2"
+   ```
+8. Push tag: `git push origin vX.Y.Z`
+9. GitHub Actions will automatically:
+   - Build release binaries for all platforms
+   - Generate checksums
+   - Create GitHub Release
+   - Attach binaries to release
+10. Monitor workflow: `gh run list --workflow=release.yml`
+11. Verify release: `gh release view vX.Y.Z`
+
+**Version Bump Examples**
+- New feature: `0.3.0` → `0.4.0` (minor bump)
+- Bug fix: `0.3.0` → `0.3.1` (patch bump)
+- Breaking change: `0.3.0` → `1.0.0` (major bump)
 
 ### Useful Commands
 

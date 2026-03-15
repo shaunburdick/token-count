@@ -5,6 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-03-14
+
+### 🐛 Debug Mode with Token ID Display
+
+The fourth release adds comprehensive debug mode functionality (`-vvv`) that displays individual token IDs and their decoded text representations. Also differentiates all verbosity levels and includes security hardening against DoS attacks.
+
+### Added
+
+#### Debug Mode Features
+- **Token ID Display** (`-vvv` flag): Shows token IDs for the first 10 tokens
+- **Decoded Token Text**: Displays the text representation of each token
+- **Differentiated Verbosity Levels**:
+  - Level 0 (default): Just the token count
+  - Level 1 (`-v`): Model name + encoding + token count
+  - Level 2 (`-vv`): Add context window size + percentage
+  - Level 3 (`-vvv`): Add token IDs + decoded tokens
+- **Multi-Tokenizer Support**: Works with OpenAI (tiktoken-rs) and Gemini models
+- **Claude Handling**: Shows "estimation-based" message (no real token IDs)
+
+#### Security Hardening
+- **DoS Prevention**: 50KB input size limit for debug mode to prevent stack overflow
+- **Graceful Degradation**: Large inputs show warning and fall back to token-count-only mode
+- **No Application Crashes**: Prevents unrecoverable panic from tiktoken-rs recursion issues
+
+#### Testing
+- **4 new tests** (regression tests for debug mode security)
+- **Total: 181 tests** (increased from 178)
+- All tests passing with zero clippy warnings
+
+### Changed
+
+- **Test count badge**: Updated from 178 to 181 passing tests
+- **Verbosity behavior**: `-v` and `-vv` now show different output (previously identical)
+- **Binary size**: Increased from ~11.5MB to ~16.8MB (includes debug token decoding)
+- **README**: Updated with debug mode examples and security documentation
+
+### Fixed
+
+- **Stack Overflow Protection**: tiktoken-rs can crash with large inputs in debug mode; now limited to 50KB with graceful degradation
+- **Verbosity Differentiation**: All 4 levels now produce distinct output as originally specified
+
+### Technical Details
+
+#### New/Modified Modules
+- `src/output/basic.rs` - New `BasicFormatter` for level 1 (`-v`)
+- `src/tokenizers/mod.rs` - Added `TokenDetail` struct with `PartialEq`/`Eq` derives
+- `src/tokenizers/openai.rs` - Implemented `encode_with_details()` with 50KB safety limit
+- `src/tokenizers/google/mod.rs` - Implemented `encode_with_details()` via `compute_tokens()`
+- `src/tokenizers/claude/mod.rs` - Returns `None` for estimation-based tokenizer
+- `src/output/debug.rs` - Updated to display token IDs and decoded text
+- `src/lib.rs` - Updated `count_tokens()` signature to accept `verbosity: u8`
+
+#### Security Improvements
+- **Input Size Limit**: `MAX_DEBUG_INPUT_SIZE` constant (50KB) in OpenAI tokenizer
+- **Graceful Error Handling**: User-friendly warning message for oversized inputs
+- **Regression Tests**: Added tests for both large (60KB) and normal inputs
+
+### Limitations
+
+- **Debug mode input limit**: 50KB maximum for token ID display (normal tokenization supports 100MB)
+- **Token display limit**: Shows first 10 tokens only to avoid overwhelming output
+- **Claude models**: No token IDs available (estimation-based, not exact tokenization)
+
+### References
+
+- Upstream tiktoken-rs issues: [#327](https://github.com/zurawiki/tiktoken-rs/issues/327), [#245](https://github.com/zurawiki/tiktoken-rs/issues/245), [#400](https://github.com/zurawiki/tiktoken-rs/issues/400)
+- Pull Request: [#4](https://github.com/shaunburdick/token-count/pull/4)
+
+---
+
 ## [0.3.0] - 2026-03-14
 
 ### 🚀 Google Gemini Model Support
@@ -399,5 +469,7 @@ This is the initial release. No migration required.
 
 ---
 
+[0.4.0]: https://github.com/shaunburdick/token-count/releases/tag/v0.4.0
+[0.3.0]: https://github.com/shaunburdick/token-count/releases/tag/v0.3.0
 [0.2.0]: https://github.com/shaunburdick/token-count/releases/tag/v0.2.0
 [0.1.0]: https://github.com/shaunburdick/token-count/releases/tag/v0.1.0
