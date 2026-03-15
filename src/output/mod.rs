@@ -5,11 +5,12 @@
 //!
 //! # Formatters
 //!
-//! Three formatters are available via the [`OutputFormatter`] trait:
+//! Four formatters are available via the [`OutputFormatter`] trait:
 //!
 //! - [`SimpleFormatter`] - Verbosity 0 (default): Just the token count
-//! - [`VerboseFormatter`] - Verbosity 1-2: Model info and context window usage
-//! - [`DebugFormatter`] - Verbosity 3+: Debug information for troubleshooting
+//! - [`BasicFormatter`] - Verbosity 1 (`-v`): Model info and token count
+//! - [`VerboseFormatter`] - Verbosity 2 (`-vv`): Add context window usage percentage
+//! - [`DebugFormatter`] - Verbosity 3+ (`-vvv`): Add token IDs and decoded tokens
 //!
 //! # Example
 //!
@@ -32,9 +33,9 @@
 //! let simple = select_formatter(0);
 //! assert_eq!(simple.format(&result), "2");
 //!
-//! // Verbose output (verbosity 1)
-//! let verbose = select_formatter(1);
-//! let output = verbose.format(&result);
+//! // Basic output (verbosity 1)
+//! let basic = select_formatter(1);
+//! let output = basic.format(&result);
 //! assert!(output.contains("Model: gpt-4"));
 //! assert!(output.contains("Tokens: 2"));
 //! ```
@@ -53,13 +54,16 @@
 //! | Level | Flag | Formatter | Output |
 //! |-------|------|-----------|--------|
 //! | 0 | (default) | Simple | `2` |
-//! | 1-2 | `-v`, `-vv` | Verbose | Model info + context % |
-//! | 3+ | `-vvv` | Debug | Diagnostic information |
+//! | 1 | `-v` | Basic | Model info + token count |
+//! | 2 | `-vv` | Verbose | Model info + context % |
+//! | 3+ | `-vvv` | Debug | Token IDs + decoded tokens |
 
+pub mod basic;
 pub mod debug;
 pub mod simple;
 pub mod verbose;
 
+pub use basic::BasicFormatter;
 pub use debug::DebugFormatter;
 pub use simple::SimpleFormatter;
 pub use verbose::VerboseFormatter;
@@ -75,12 +79,14 @@ pub trait OutputFormatter {
 /// Select the appropriate formatter based on verbosity level
 ///
 /// - 0: Simple (number only)
-/// - 1-2: Verbose (model info, context window percentage)
-/// - 3+: Debug (token IDs, decoded tokens)
+/// - 1: Basic (model info and token count)
+/// - 2: Verbose (add context window percentage)
+/// - 3+: Debug (add token IDs and decoded tokens)
 pub fn select_formatter(verbosity: u8) -> Box<dyn OutputFormatter> {
     match verbosity {
         0 => Box::new(SimpleFormatter),
-        1 | 2 => Box::new(VerboseFormatter),
+        1 => Box::new(BasicFormatter),
+        2 => Box::new(VerboseFormatter),
         _ => Box::new(DebugFormatter),
     }
 }

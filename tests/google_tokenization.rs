@@ -47,7 +47,7 @@ fn test_gemini_provider_format() {
 #[test]
 fn test_gemini_verbose() {
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.args(["--model", "gemini", "-v"])
+    cmd.args(["--model", "gemini", "-vv"])
         .write_stdin("test")
         .assert()
         .success()
@@ -60,7 +60,7 @@ fn test_gemini_verbose() {
 #[test]
 fn test_gemini_3_pro_preview() {
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.args(["--model", "gemini-3-pro-preview", "-v"])
+    cmd.args(["--model", "gemini-3-pro-preview", "-vv"])
         .write_stdin("test")
         .assert()
         .success()
