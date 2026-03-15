@@ -216,6 +216,12 @@ Follow Conventional Commits:
    - [ ] `README.md` - Bottom status line: `**Status**: ✅ vX.Y.Z Complete (...) | **Version**: X.Y.Z`
    - [ ] `CHANGELOG.md` - Add new `## [X.Y.Z] - YYYY-MM-DD` section at top
    - [ ] `CHANGELOG.md` - Add link at bottom: `[X.Y.Z]: https://github.com/shaunburdick/token-count/releases/tag/vX.Y.Z`
+   - [ ] `SECURITY.md` - Update all version references:
+        - Line 7: Update supported version table to `vX.Y.x`
+        - Line 103-106: Update checksum URL and filename (v0.1.0 → vX.Y.Z)
+        - Line 135: Update Rust version (currently 1.86.0)
+        - Line 141: Update test count (run `cargo test --quiet | grep -c "test"`)
+        - Bottom: Update "Last updated" date
 3. Build and verify version: `cargo build --release && ./target/release/token-count --version`
 4. Run full test suite: `cargo test`
 5. Commit version bump: `git commit -m "chore: bump version to X.Y.Z"`

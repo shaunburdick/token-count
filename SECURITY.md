@@ -4,7 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+| 0.4.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -100,10 +100,10 @@ All pre-built binaries include SHA256 checksums for verification:
 
 ```bash
 # Download checksums
-curl -LO "https://github.com/shaunburdick/token-count/releases/download/v0.1.0/checksums.txt"
+curl -LO "https://github.com/shaunburdick/token-count/releases/download/v0.4.0/checksums.txt"
 
 # Verify downloaded binary
-grep "token-count-0.1.0-x86_64-unknown-linux-gnu.tar.gz" checksums.txt | shasum -a 256 -c -
+grep "token-count-0.4.0-x86_64-unknown-linux-gnu.tar.gz" checksums.txt | shasum -a 256 -c -
 ```
 
 The install script automatically verifies checksums before installation.
@@ -132,13 +132,13 @@ cargo tree
 
 1. **Automated builds**: GitHub Actions builds all binaries in isolated runners
 2. **Checksum generation**: SHA256 hashes computed for all artifacts
-3. **Reproducible builds**: Pinned Rust version (1.85.0) and locked dependencies
+3. **Reproducible builds**: Pinned Rust version (1.86.0) and locked dependencies
 4. **No manual steps**: Reduces risk of human error or tampering
 
 #### Code Review
 
 - All code changes reviewed before merging
-- Automated testing (181 tests) on every commit
+- Automated testing (177 tests) on every commit
 - Strict linting with zero warnings tolerated
 - No disabled security checks or suppressions
 - **CodeQL static analysis**: Runs on every push and pull request
@@ -204,5 +204,5 @@ We appreciate responsible disclosure and will publicly acknowledge security rese
 
 ---
 
-**Last updated**: 2026-03-14  
+**Last updated**: 2026-03-15  
 **Policy version**: 1.0
