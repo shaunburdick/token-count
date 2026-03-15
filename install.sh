@@ -409,7 +409,7 @@ main() {
     
     # Print usage instructions
     echo "Try it out:"
-    echo "  echo \"Hello world\" | $BINARY_NAME"
+    echo "  echo 'Hello world' | $BINARY_NAME"
     echo ""
     echo "Documentation: https://github.com/$GITHUB_REPO"
     echo ""

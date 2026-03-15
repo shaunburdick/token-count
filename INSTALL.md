@@ -197,15 +197,15 @@ After installation, verify it works:
 token-count --version
 
 # Test basic functionality
-echo "Hello, world!" | token-count
+echo 'Hello, world!' | token-count
 
 # Test with specific model
-echo "The quick brown fox jumps over the lazy dog" | token-count --model gpt-4
+echo 'The quick brown fox jumps over the lazy dog' | token-count --model gpt-4
 ```
 
 **Expected output:**
 ```
-9
+10
 ```
 
 ## Security

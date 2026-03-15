@@ -4,7 +4,7 @@
 
 [![Rust](https://img.shields.io/badge/rust-1.85%2B-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-178%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-177%20passing-brightgreen.svg)](tests/)
 
 ## Overview
 
@@ -13,15 +13,15 @@
 ```bash
 # OpenAI models (exact, offline)
 echo "Hello world" | token-count --model gpt-4
-2
+3
 
 # Google Gemini models (exact, offline)
-echo "Hello, Gemini!" | token-count --model gemini
-4
+echo 'Hello, Gemini!' | token-count --model gemini
+5
 
 # Claude models (estimation, offline)
-echo "Hello, Claude!" | token-count --model claude
-9
+echo 'Hello, Claude!' | token-count --model claude
+4
 
 # From file
 token-count --model gpt-4 < document.txt
@@ -37,9 +37,7 @@ Context window: 1000000 tokens (0.0142% used)
 ## Features
 
 ✅ **Accurate** - Exact tokenization for OpenAI and Google Gemini, adaptive estimation for Claude  
-✅ **Fast** - ~2.7µs for small inputs (3,700x faster than 10ms target)  
-✅ **Efficient** - 57MB memory for 12MB files (8.8x under 500MB limit)  
-✅ **Compact** - 16.8MB binary with all tokenizers embedded  
+✅ **Fast** - Optimized for speed with embedded tokenizers  
 ✅ **Offline** - Zero runtime dependencies for OpenAI and Gemini; optional API for Claude  
 ✅ **Simple** - POSIX-style interface, works like `wc` or `grep`
 
@@ -80,11 +78,11 @@ For detailed installation instructions, troubleshooting, and platform-specific g
 ```bash
 # Default model (gpt-3.5-turbo)
 echo "Hello world" | token-count
-2
+3
 
 # Specific model
 echo "Hello world" | token-count --model gpt-4
-2
+3
 
 # From file
 token-count --model gpt-4 < input.txt
@@ -114,18 +112,18 @@ token-count --model openai/gpt-4 < input.txt
 ```bash
 # Simple output (default) - just the number
 echo "test" | token-count
-1
+2
 
 # Verbose (-v) - model info and context usage
 echo "test" | token-count -v
 Model: gpt-3.5-turbo (cl100k_base)
-Tokens: 1
-Context window: 16385 tokens (0.0061% used)
+Tokens: 2
+Context window: 16385 tokens (0.0122% used)
 
 # Debug (-vvv) - for troubleshooting
 echo "test" | token-count -vvv
 Model: gpt-3.5-turbo (cl100k_base)
-Tokens: 1
+Tokens: 2
 Context window: 16385 tokens
 
 [Debug mode: Token IDs and decoding require tokenizer access]
@@ -198,15 +196,15 @@ token-count --version
 **Offline Estimation (Default)** - No API key needed:
 ```bash
 # Fast offline estimation using adaptive content-type detection
-echo "Hello, Claude!" | token-count --model claude
-9
+echo 'Hello, Claude!' | token-count --model claude
+4
 ```
 
 **Exact API Mode (Optional)** - Requires `ANTHROPIC_API_KEY`:
 ```bash
 # Exact count via Anthropic API (requires consent)
 export ANTHROPIC_API_KEY="sk-ant-..."
-echo "Hello, Claude!" | token-count --model claude --accurate
+echo 'Hello, Claude!' | token-count --model claude --accurate
 # Prompts: "This will send your input to Anthropic's API... Proceed? (y/N)"
 # Output: 8
 
@@ -248,30 +246,6 @@ Error: Input contains invalid UTF-8 at byte 0
 - `0` - Success
 - `1` - I/O error or invalid UTF-8
 - `2` - Unknown model name
-
-## Performance
-
-### Benchmarks
-
-Measured on Ubuntu 22.04 with Rust 1.85.0:
-
-| Input Size | Time | Target | Result |
-|------------|------|--------|--------|
-| 100 bytes | 2.7µs | <10ms | 3,700x faster ⚡ |
-| 1 KB | 54µs | <100ms | 1,850x faster ⚡ |
-| 10 KB | 534µs | N/A | Excellent |
-
-### Memory Usage
-
-- **12MB file**: 57 MB resident memory (8.8x under 500MB limit)
-- **Processing time**: 0.76 seconds for 12MB
-- **No memory leaks**: Validated with valgrind
-
-### Binary Size
-
-- **Release binary**: 9.2 MB (5.4x under 50MB target)
-- **Includes**: All 4 OpenAI tokenizers embedded
-- **Optimizations**: Stripped, LTO enabled
 
 ## Development
 
@@ -400,10 +374,9 @@ timeout 30s token-count --model gpt-4 < input.txt
 
 ### Security Audit
 
-- **Last audit**: 2026-03-13
+- **Last audit**: 2026-03-14
 - **Findings**: 0 critical, 0 high, 0 medium vulnerabilities
-- **Dependencies**: 5 direct, all audited with `cargo audit`
-- **Binary**: Stripped, no debug symbols, 9.2MB
+- **Dependencies**: Audited with `cargo audit`
 
 Run security checks:
 ```bash
@@ -439,7 +412,7 @@ From our [Constitution](.specify/memory/constitution.md):
 - **Async Runtime**: tokio 1.0+ (for API calls)
 - **Error Handling**: anyhow 1.0.102+, thiserror 1.0+
 - **Fuzzy Matching**: strsim 0.11+ (Levenshtein distance)
-- **Testing**: 152 tests with criterion benchmarks
+- **Testing**: 177 tests with criterion benchmarks
 
 ### Key Features
 
@@ -448,42 +421,6 @@ From our [Constitution](.specify/memory/constitution.md):
 - **Strategy pattern**: Multiple output formatters
 - **Registry pattern**: Model configuration with lazy initialization
 - **Streaming support**: 64KB chunks for large inputs
-
-## Roadmap
-
-### v0.1.0 (Current Release) ✅
-
-- [x] OpenAI model support (4 models)
-- [x] CLI with model selection and verbosity
-- [x] Fuzzy model suggestions
-- [x] UTF-8 validation with error reporting
-- [x] Comprehensive test suite (100 tests)
-- [x] Performance benchmarks
-- [x] Cross-platform support (Linux, macOS, Windows)
-- [x] Multiple installation methods (install.sh, Homebrew, cargo, manual)
-- [x] GitHub release binaries with checksums
-- [x] Automated release pipeline
-
-### v0.2.0 (Current Release)
-
-- [x] Anthropic Claude support (3 models)
-- [x] Adaptive token estimation algorithm (code/prose detection)
-- [x] Optional accurate mode via Anthropic API
-- [x] Interactive consent prompt for API calls
-- [x] Non-interactive mode support (`-y` flag)
-
-### v0.3.0 (Future - More Models)
-
-- [ ] Google Gemini support
-- [ ] Meta Llama support
-- [ ] Mistral support
-
-### v0.4.0 (Future - Stable API)
-
-- [ ] Stable library API for embedding
-- [ ] Token ID output (debug mode)
-- [ ] Batch processing mode
-- [ ] Configuration file support
 
 ## Contributing
 
@@ -526,5 +463,5 @@ Special thanks to:
 
 ---
 
-**Status**: ✅ v0.2.0 Complete (Claude Support) | **Version**: 0.2.0  
+**Status**: ✅ v0.3.0 Complete (Gemini Support) | **Version**: 0.3.0  
 **Author**: [Shaun Burdick](https://github.com/shaunburdick)
