@@ -2,7 +2,7 @@
 
 > A fast, accurate CLI tool for counting tokens in LLM model inputs
 
-[![Rust](https://img.shields.io/badge/rust-1.85%2B-orange.svg)](https://www.rust-lang.org/)
+[![Rust](https://img.shields.io/badge/rust-1.86%2B-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-181%20passing-brightgreen.svg)](tests/)
 
@@ -69,7 +69,7 @@ For detailed installation instructions, troubleshooting, and platform-specific g
 
 - **Platform**: Linux x86_64, macOS (Intel/Apple Silicon), Windows x86_64
 - **Runtime**: No dependencies (static binary)
-- **Build from source**: Rust 1.85.0 or later, CMake 3.10+ (for gemini-tokenizer SentencePiece dependency)
+- **Build from source**: Rust 1.86.0 or later, CMake 3.10+ (for gemini-tokenizer SentencePiece dependency)
 
 ## Usage
 
@@ -420,7 +420,7 @@ From our [Constitution](.specify/memory/constitution.md):
 
 ### Technical Stack
 
-- **Language**: Rust 1.85.0+ (stable)
+- **Language**: Rust 1.86.0+ (stable)
 - **CLI Parsing**: clap 4.6.0+ (derive API)
 - **Tokenization**: 
   - tiktoken-rs 0.9.1+ (OpenAI models - offline)

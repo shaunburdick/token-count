@@ -40,9 +40,9 @@ Breaking changes require major version bump. New models/features are minor versi
 ## Technical Decisions
 
 ### Language & Toolchain
-- **Language**: Rust (stable channel, MSRV: 1.85.0+)
+- **Language**: Rust (stable channel, MSRV: 1.86.0+)
 - **Rationale**: Memory safety, cross-compilation, single-binary output, excellent CLI ecosystem
-- **MSRV Update**: Changed from 1.75.0 to 1.85.0 to support clap 4.6.0+ (see Amendment 1.2.0)
+- **MSRV Update**: Changed from 1.85.0 to 1.86.0 for io::Error::other() support (see Amendment 1.4.0)
 
 ### Core Dependencies
 | Crate | Version | Purpose | Justification |
@@ -355,3 +355,37 @@ Every PR must:
 - ✅ Simpler architecture (no dynamic loading complexity)
 
 **Approved**: 2026-03-13 (User decision)
+
+---
+
+### Amendment 1.4.0 (2026-03-15): MSRV Update to 1.86.0+
+**Type**: Technical Decision Update (Non-Breaking for existing users)
+
+**Change**: Updated Minimum Supported Rust Version (MSRV) from 1.85.0 to 1.86.0
+
+**Rationale**:
+- io::Error::other() API requires Rust 1.86+ (stabilized in Rust 1.86.0, released Feb 2025)
+- Used in src/api/consent.rs for improved error handling ergonomics
+- Provides cleaner, more idiomatic error construction than io::Error::new()
+- Rust 1.86.0 is widely available and only 1 month newer than 1.85.0
+- Code quality review identified MSRV violation that needed addressing
+
+**Impact**:
+- CI/CD workflows updated to use Rust 1.86.0 toolchain
+- Users building from source need Rust 1.86.0+
+- Pre-built binaries unaffected (no runtime requirement)
+- GitHub Actions rust-toolchain updated from 1.85.0 to 1.86.0
+- Documentation updated (README, INSTALL, CONTRIBUTING, AGENTS)
+
+**Alternatives Considered**:
+1. Replace io::Error::other() with io::Error::new() - Rejected: Less ergonomic, more verbose
+2. Keep 1.85.0 MSRV - Rejected: Already using io::Error::other() in production code
+
+**Trade-offs**:
+- ✅ Cleaner, more idiomatic error handling
+- ✅ Uses modern Rust standard library features
+- ✅ Aligns with latest stable Rust conventions
+- ⚠️ Minimal barrier increase (1.85 → 1.86, released Feb 2025)
+- ✅ No impact on end users (pre-built binaries work anywhere)
+
+**Approved**: 2026-03-15 (User decision: Bump MSRV to 1.86.0)

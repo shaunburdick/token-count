@@ -153,7 +153,7 @@ sudo install -m 755 target/release/token-count /usr/local/bin/token-count
 ```
 
 **Requirements:**
-- Rust 1.85.0 or later
+- Rust 1.86.0 or later
 - Git
 - CMake 3.10 or later (for SentencePiece tokenizer)
 
@@ -256,7 +256,7 @@ brew install token-count
 
 **Solutions:**
 1. Update Rust: `rustup update`
-2. Check minimum version: `rustc --version` (need 1.85.0+)
+2. Check minimum version: `rustc --version` (need 1.86.0+)
 3. Install Rust if missing: https://rustup.rs/
 
 ### Permission denied on Linux/macOS

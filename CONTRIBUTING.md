@@ -21,7 +21,7 @@ This project follows the Rust Code of Conduct. Please be respectful and construc
 
 ### Prerequisites
 
-- **Rust**: 1.85.0 or later
+- **Rust**: 1.86.0 or later
 - **Git**: For version control
 - **Linux**: Ubuntu 22.04+ (macOS/Windows support coming in v0.2.0)
 
@@ -41,9 +41,9 @@ cd token-count
 # Install rustup if you haven't already
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Ensure you have Rust 1.85.0+
+# Ensure you have Rust 1.86.0+
 rustup update
-rustc --version  # Should be 1.85.0 or later
+rustc --version  # Should be 1.86.0 or later
 ```
 
 ### 2. Build the Project

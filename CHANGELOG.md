@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **MSRV Bump**: Updated Minimum Supported Rust Version from 1.85.0 to 1.86.0
+  - Required for `io::Error::other()` API (used in `src/api/consent.rs`)
+  - Provides cleaner, more idiomatic error handling
+  - Impact: Users building from source need Rust 1.86.0+ (Feb 2025)
+  - Pre-built binaries unaffected
+
 ## [0.4.0] - 2026-03-14
 
 ### 🐛 Debug Mode with Token ID Display

@@ -4,7 +4,7 @@ Auto-generated from all feature plans. Last updated: 2026-03-14
 
 ## Active Technologies
 
-- Rust 1.85.0+ (stable channel) (001-core-cli)
+- Rust 1.86.0+ (stable channel) (001-core-cli)
 
 ## Project Structure
 
@@ -19,11 +19,11 @@ cargo test && cargo clippy
 
 ## Code Style
 
-Rust 1.85.0+ (stable channel): Follow standard conventions
+Rust 1.86.0+ (stable channel): Follow standard conventions
 
 ## Recent Changes
 
-- 001-core-cli: Added Rust 1.85.0+ (stable channel) (MSRV updated from 1.75 for clap 4.6.0 compatibility)
+- 001-core-cli: Added Rust 1.86.0+ (stable channel) (MSRV updated from 1.85 for io::Error::other() compatibility)
 
 <!-- MANUAL ADDITIONS START -->
 
@@ -278,7 +278,7 @@ ls -lh target/release/token-count
 ### Project-Specific Notes
 
 **Build Requirements**
-- Rust 1.85.0+ (MSRV)
+- Rust 1.86.0+ (MSRV)
 - CMake 3.10+ (for SentencePiece tokenizer, build-time only)
 
 **Binary Size Target**
