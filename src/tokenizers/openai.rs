@@ -1,6 +1,6 @@
 //! OpenAI tokenization using tiktoken-rs
 
-use crate::tokenizers::{ModelInfo, Tokenizer};
+use crate::tokenizers::{ModelInfo, TokenDetail, Tokenizer};
 use anyhow::{Context, Result};
 use tiktoken_rs::CoreBPE;
 
@@ -37,6 +37,20 @@ impl Tokenizer for OpenAITokenizer {
 
     fn get_model_info(&self) -> ModelInfo {
         self.model_info.clone()
+    }
+
+    fn encode_with_details(&self, text: &str) -> Result<Option<Vec<TokenDetail>>> {
+        let token_ids = self.bpe.encode_with_special_tokens(text);
+
+        // Limit to first 10 tokens to avoid overwhelming output
+        let mut details = Vec::new();
+        for token_id in token_ids.iter().take(10) {
+            // Decode individual token
+            let decoded = self.bpe.decode(vec![*token_id])?;
+            details.push(TokenDetail { id: *token_id, text: decoded });
+        }
+
+        Ok(Some(details))
     }
 }
 

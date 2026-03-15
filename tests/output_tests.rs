@@ -10,6 +10,7 @@ fn create_test_result() -> TokenizationResult {
             context_window: 128000,
             description: "GPT-4 model".to_string(),
         },
+        token_details: None,
     }
 }
 
@@ -47,7 +48,7 @@ fn test_debug_formatter_output() {
 
     assert!(output.contains("Model: gpt-4"));
     assert!(output.contains("Tokens: 2"));
-    assert!(output.contains("v0.2.0"));
+    assert!(output.contains("Token IDs not available"));
 
     // Should be multi-line
     assert!(output.contains('\n'));
@@ -74,5 +75,5 @@ fn test_formatter_selection() {
     // Verbosity 3+ -> Debug
     let f3 = token_count::output::select_formatter(3);
     let out3 = f3.format(&result);
-    assert!(out3.contains("v0.2.0"));
+    assert!(out3.contains("Token IDs not available"));
 }

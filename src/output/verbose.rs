@@ -51,6 +51,7 @@ mod tests {
                 context_window: 128000,
                 description: "GPT-4".to_string(),
             },
+            token_details: None,
         };
 
         let output = formatter.format(&result);
@@ -71,6 +72,7 @@ mod tests {
                 context_window: 128000,
                 description: "GPT-4".to_string(),
             },
+            token_details: None,
         };
 
         let output = formatter.format(&result);

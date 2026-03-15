@@ -53,7 +53,8 @@ fn test_verbosity_3_debug() {
         .success()
         .stdout(predicate::str::contains("Model: gpt-4"))
         .stdout(predicate::str::contains("Tokens: 2"))
-        .stdout(predicate::str::contains("v0.2.0"));
+        .stdout(predicate::str::contains("Token IDs:"))
+        .stdout(predicate::str::contains("Decoded tokens:"));
 }
 
 /// Test verbosity level 4+ (-vvvv) - same as -vvv
@@ -62,7 +63,10 @@ fn test_verbosity_4_plus() {
     let mut cmd = Command::cargo_bin("token-count").unwrap();
     cmd.arg("--model").arg("gpt-4").arg("-vvvv").write_stdin("Hello world");
 
-    cmd.assert().success().stdout(predicate::str::contains("v0.2.0"));
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("Token IDs:"))
+        .stdout(predicate::str::contains("Decoded tokens:"));
 }
 
 /// Test that verbose output includes encoding information

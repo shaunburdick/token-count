@@ -49,7 +49,8 @@ fn test_debug_output() {
         .success()
         .stdout(predicate::str::contains("Model: gpt-4"))
         .stdout(predicate::str::contains("Tokens:"))
-        .stdout(predicate::str::contains("v0.2.0"));
+        .stdout(predicate::str::contains("Token IDs:"))
+        .stdout(predicate::str::contains("Decoded tokens:"));
 }
 
 #[test]

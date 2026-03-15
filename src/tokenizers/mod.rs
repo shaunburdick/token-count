@@ -84,6 +84,15 @@ impl fmt::Display for TokenCount {
     }
 }
 
+/// Detailed information about a single token
+#[derive(Debug, Clone)]
+pub struct TokenDetail {
+    /// The token ID
+    pub id: u32,
+    /// The decoded text representation of this token
+    pub text: String,
+}
+
 /// Trait for tokenizing text with a specific model
 pub trait Tokenizer: Send + Sync {
     /// Count the number of tokens in the given text
@@ -91,6 +100,14 @@ pub trait Tokenizer: Send + Sync {
 
     /// Get information about the model
     fn get_model_info(&self) -> ModelInfo;
+
+    /// Encode text and return detailed token information (optional, for debug mode)
+    ///
+    /// Returns `None` if the tokenizer doesn't support detailed tokenization.
+    /// This is used for debug output (`-vvv` flag).
+    fn encode_with_details(&self, _text: &str) -> anyhow::Result<Option<Vec<TokenDetail>>> {
+        Ok(None)
+    }
 }
 
 /// Information about a tokenization model
@@ -113,6 +130,8 @@ impl fmt::Display for ModelInfo {
 pub struct TokenizationResult {
     pub token_count: usize,
     pub model_info: ModelInfo,
+    /// Optional detailed token information (for debug mode)
+    pub token_details: Option<Vec<TokenDetail>>,
 }
 
 #[cfg(test)]

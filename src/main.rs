@@ -65,8 +65,8 @@ fn run_tokenization(cli: &Cli, accurate: bool) -> Result<(), TokenError> {
     // Read input from stdin
     let input = read_stdin()?;
 
-    // Count tokens using the specified model
-    let result = count_tokens(&input, &cli.model, accurate)?;
+    // Count tokens using the specified model, including verbosity for debug mode
+    let result = count_tokens(&input, &cli.model, accurate, cli.verbose)?;
 
     // Select the appropriate formatter based on verbosity level
     let formatter = select_formatter(cli.verbose);

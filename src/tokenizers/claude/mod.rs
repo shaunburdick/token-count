@@ -14,7 +14,7 @@ pub use models::claude_models;
 
 use crate::error::TokenError;
 use crate::tokenizers::registry::ModelConfig;
-use crate::tokenizers::{ModelInfo, Tokenizer};
+use crate::tokenizers::{ModelInfo, TokenDetail, Tokenizer};
 use std::env;
 
 /// Tokenizer for Anthropic Claude models
@@ -92,5 +92,10 @@ impl Tokenizer for ClaudeTokenizer {
             context_window: self.config.context_window,
             description: self.config.description.clone(),
         }
+    }
+
+    fn encode_with_details(&self, _text: &str) -> anyhow::Result<Option<Vec<TokenDetail>>> {
+        // Claude uses estimation-based tokenization, so we cannot provide actual token IDs
+        Ok(None)
     }
 }
