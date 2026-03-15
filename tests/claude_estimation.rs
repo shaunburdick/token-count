@@ -24,7 +24,7 @@ fn test_claude_estimation_simple() {
 #[test]
 fn test_claude_estimation_verbose() {
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.arg("--model").arg("claude").arg("-v").write_stdin("Hello, world!");
+    cmd.arg("--model").arg("claude").arg("-vv").write_stdin("Hello, world!");
 
     cmd.assert()
         .success()

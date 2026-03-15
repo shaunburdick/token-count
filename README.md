@@ -4,7 +4,7 @@
 
 [![Rust](https://img.shields.io/badge/rust-1.85%2B-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-177%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-181%20passing-brightgreen.svg)](tests/)
 
 ## Overview
 
@@ -110,25 +110,40 @@ token-count --model openai/gpt-4 < input.txt
 ### Verbosity Levels
 
 ```bash
-# Simple output (default) - just the number
-echo "test" | token-count
+# Level 0 (default) - just the token count
+echo "Hello world" | token-count
 2
 
-# Verbose (-v) - model info and context usage
-echo "test" | token-count -v
+# Level 1 (-v) - model info and token count
+echo "Hello world" | token-count -v
+Model: gpt-3.5-turbo (cl100k_base)
+Tokens: 2
+
+# Level 2 (-vv) - add context window usage percentage
+echo "Hello world" | token-count -vv
 Model: gpt-3.5-turbo (cl100k_base)
 Tokens: 2
 Context window: 16385 tokens (0.0122% used)
 
-# Debug (-vvv) - for troubleshooting
-echo "test" | token-count -vvv
+# Level 3 (-vvv) - add token IDs and decoded text (debug mode)
+echo "Hello world" | token-count -vvv
 Model: gpt-3.5-turbo (cl100k_base)
 Tokens: 2
-Context window: 16385 tokens
+Context window: 16385 tokens (0.0122% used)
 
-[Debug mode: Token IDs and decoding require tokenizer access]
-[Full implementation in Phase 6]
+Token IDs: [9906, 1917]
+Decoded tokens:
+  [0] 9906 → "Hello"
+  [1] 1917 → " world"
 ```
+
+**Debug Mode Features (`-vvv`):**
+- Shows token IDs for the first 10 tokens
+- Displays decoded text for each token
+- Works with OpenAI and Gemini models (exact tokenization)
+- Claude models show "estimation-based" message (no real token IDs)
+- Input size limited to 50KB in debug mode (prevents stack overflow)
+- Larger inputs gracefully degrade with a warning message
 
 ### Model Information
 
@@ -276,7 +291,7 @@ cargo audit
 ### Running Tests
 
 ```bash
-# All tests (100 tests)
+# All tests (181 tests)
 cargo test
 
 # Specific test suite
@@ -312,9 +327,10 @@ token-count/
 │   │   ├── consent.rs      # Interactive consent prompt
 │   │   └── mod.rs
 │   ├── output/             # Output formatters
-│   │   ├── simple.rs       # Simple formatter
-│   │   ├── verbose.rs      # Verbose formatter
-│   │   ├── debug.rs        # Debug formatter
+│   │   ├── simple.rs       # Simple formatter (level 0)
+│   │   ├── basic.rs        # Basic formatter (level 1)
+│   │   ├── verbose.rs      # Verbose formatter (level 2)
+│   │   ├── debug.rs        # Debug formatter (level 3+)
 │   │   └── mod.rs
 │   └── error.rs            # Error types
 ├── tests/                  # Integration tests
@@ -339,16 +355,17 @@ token-count/
 ### Resource Limits
 
 - **Maximum input size**: 100MB per invocation
+- **Debug mode input limit**: 50KB (for `-vvv` flag with token ID display)
 - **Memory usage**: Typically <100MB, peaks at ~2x input size
 - **CPU usage**: Single-threaded, 100% of one core during processing
 
 ### Known Limitations
 
-**Stack Overflow with Highly Repetitive Inputs**: The underlying tiktoken-rs library can experience stack overflow when processing highly repetitive single-character inputs (e.g., 1MB+ of the same character). This is due to regex backtracking in the tokenization engine. Real-world text with varied content works fine at large sizes.
+**Stack Overflow with Large Inputs in Debug Mode**: The underlying tiktoken-rs library can experience stack overflow when processing large inputs in debug mode (`-vvv` flag). To prevent crashes, debug mode automatically limits input size to 50KB and gracefully degrades to token-count-only mode for larger inputs.
 
-- **Workaround**: Break extremely large repetitive inputs into smaller chunks
-- **Impact**: Minimal - real documents rarely exhibit this pathological pattern
-- **Status**: Tracked upstream in tiktoken-rs
+- **Mitigation**: 50KB input size limit in debug mode with user-friendly warning
+- **Impact**: Only affects `-vvv` flag; normal tokenization works fine with large files
+- **Status**: Protection implemented; tracked upstream in tiktoken-rs (#327, #245, #400)
 
 ### Best Practices
 
@@ -412,7 +429,7 @@ From our [Constitution](.specify/memory/constitution.md):
 - **Async Runtime**: tokio 1.0+ (for API calls)
 - **Error Handling**: anyhow 1.0.102+, thiserror 1.0+
 - **Fuzzy Matching**: strsim 0.11+ (Levenshtein distance)
-- **Testing**: 177 tests with criterion benchmarks
+- **Testing**: 181 tests with criterion benchmarks
 
 ### Key Features
 

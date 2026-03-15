@@ -7,7 +7,7 @@ pub use models::google_models;
 
 use crate::error::TokenError;
 use crate::tokenizers::registry::ModelConfig;
-use crate::tokenizers::{ModelInfo, Tokenizer};
+use crate::tokenizers::{ModelInfo, TokenDetail, Tokenizer};
 use tokenizer::GeminiTokenizer;
 
 /// Tokenizer for Google Gemini models
@@ -46,6 +46,15 @@ impl Tokenizer for GoogleTokenizer {
             context_window: self.config.context_window,
             description: self.config.description.clone(),
         }
+    }
+
+    fn encode_with_details(&self, text: &str) -> anyhow::Result<Option<Vec<TokenDetail>>> {
+        let token_details = self.gemini.compute_token_details(text)?;
+
+        let details: Vec<TokenDetail> =
+            token_details.into_iter().map(|(id, text)| TokenDetail { id, text }).collect();
+
+        Ok(Some(details))
     }
 }
 

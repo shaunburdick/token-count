@@ -40,6 +40,38 @@ impl GeminiTokenizer {
         let result = self.tokenizer.count_tokens(text, None);
         Ok(result.total_tokens)
     }
+
+    /// Get detailed token information (IDs and decoded text)
+    ///
+    /// # Arguments
+    /// * `text` - Input text to tokenize
+    ///
+    /// # Returns
+    /// * `Ok(Vec<(u32, String)>)` - Vec of (token_id, decoded_text) pairs
+    /// * `Err(anyhow::Error)` - Tokenization failed
+    pub fn compute_token_details(&self, text: &str) -> Result<Vec<(u32, String)>> {
+        let result = self.tokenizer.compute_tokens(text);
+
+        let mut details = Vec::new();
+        let mut total_tokens = 0;
+
+        // Extract token IDs and decoded text from tokens_info
+        for info in &result.tokens_info {
+            // Limit to first 10 tokens total
+            for (token_id, token_bytes) in info.token_ids.iter().zip(&info.tokens) {
+                if total_tokens >= 10 {
+                    return Ok(details);
+                }
+
+                // Convert bytes to UTF-8 string
+                let text = String::from_utf8_lossy(token_bytes).to_string();
+                details.push((*token_id, text));
+                total_tokens += 1;
+            }
+        }
+
+        Ok(details)
+    }
 }
 
 #[cfg(test)]

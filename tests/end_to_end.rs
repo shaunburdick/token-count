@@ -31,7 +31,7 @@ fn test_case_insensitive_model() {
 #[test]
 fn test_verbose_output() {
     let mut cmd = Command::cargo_bin("token-count").unwrap();
-    cmd.arg("--model").arg("gpt-4").arg("-v").write_stdin("test");
+    cmd.arg("--model").arg("gpt-4").arg("-vv").write_stdin("test");
 
     cmd.assert()
         .success()
@@ -49,7 +49,8 @@ fn test_debug_output() {
         .success()
         .stdout(predicate::str::contains("Model: gpt-4"))
         .stdout(predicate::str::contains("Tokens:"))
-        .stdout(predicate::str::contains("v0.2.0"));
+        .stdout(predicate::str::contains("Token IDs:"))
+        .stdout(predicate::str::contains("Decoded tokens:"));
 }
 
 #[test]

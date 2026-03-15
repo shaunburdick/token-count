@@ -16,7 +16,7 @@
 //! use token_count::count_tokens;
 //!
 //! // Count tokens for a specific model
-//! let result = count_tokens("Hello world", "gpt-4", false).unwrap();
+//! let result = count_tokens("Hello world", "gpt-4", false, 0).unwrap();
 //! assert_eq!(result.token_count, 2);
 //! println!("Tokens: {}", result.token_count);
 //! println!("Model: {}", result.model_info.name);
@@ -37,7 +37,7 @@
 //! use token_count::{count_tokens, TokenError};
 //!
 //! // Unknown model returns an error with suggestions
-//! match count_tokens("test", "gpt-5", false) {
+//! match count_tokens("test", "gpt-5", false, 0) {
 //!     Ok(_) => panic!("Should have failed"),
 //!     Err(TokenError::UnknownModel { model, suggestion }) => {
 //!         assert_eq!(model, "gpt-5");
@@ -77,10 +77,11 @@ pub use tokenizers::{ModelInfo, TokenizationResult, Tokenizer};
 /// * `text` - The text to tokenize
 /// * `model_name` - The model to use for tokenization (e.g., "gpt-4", "claude-sonnet-4-6")
 /// * `accurate` - Whether to use accurate mode for models that support it (Claude API)
+/// * `verbosity` - Verbosity level (3+ includes detailed token information for debug mode)
 ///
 /// # Returns
 ///
-/// A `Result` containing the token count and model information
+/// A `Result` containing the token count, model information, and optionally token details
 ///
 /// # Errors
 ///
@@ -94,13 +95,14 @@ pub use tokenizers::{ModelInfo, TokenizationResult, Tokenizer};
 /// ```
 /// use token_count::count_tokens;
 ///
-/// let result = count_tokens("Hello world", "gpt-4", false).unwrap();
+/// let result = count_tokens("Hello world", "gpt-4", false, 0).unwrap();
 /// assert_eq!(result.token_count, 2);
 /// ```
 pub fn count_tokens(
     text: &str,
     model_name: &str,
     accurate: bool,
+    verbosity: u8,
 ) -> Result<TokenizationResult, TokenError> {
     use tokenizers::registry::ModelRegistry;
 
@@ -111,5 +113,9 @@ pub fn count_tokens(
         tokenizer.count_tokens(text).map_err(|e| TokenError::Tokenization(e.to_string()))?;
     let model_info = tokenizer.get_model_info();
 
-    Ok(TokenizationResult { token_count, model_info })
+    // For debug mode (verbosity >= 3), get detailed token information
+    let token_details =
+        if verbosity >= 3 { tokenizer.encode_with_details(text).ok().flatten() } else { None };
+
+    Ok(TokenizationResult { token_count, model_info, token_details })
 }
